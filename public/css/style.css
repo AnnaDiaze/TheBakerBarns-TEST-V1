@@ -1,0 +1,67 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #fff8f0;
+  color: #333;
+}
+
+header {
+  background: #ffb6c1;
+  padding: 1rem;
+  text-align: center;
+}
+
+nav a {
+  margin: 0 10px;
+  text-decoration: none;
+  color: #333;
+  font-weight: bold;
+}
+
+.style {
+  text-align: center;
+  padding: 3rem;
+  background: #ffe4e1;
+}
+
+.style h2 {
+  font-size: 2rem;
+}
+
+.btn {
+  background: #ff69b4;
+  color: white;
+  padding: 10px 20px;
+  text-decoration: none;
+  border-radius: 8px;
+  display: inline-block;
+  margin-top: 10px;
+}
+
+footer {
+  background: #ffb6c1;
+  text-align: center;
+  padding: 1rem;
+  margin-top: 2rem;
+}
+
+.login {
+    text-align:center;
+    border-style:solid;
+    border-color:goldenrod;
+    border-width: 2px;
+    margin-right:500px;
+    margin-left:500px ;
+    margin-top: 100px;
+    padding-bottom:10px;
+}
+
+.register {
+    text-align:center;
+    border-style:solid;
+    border-color:goldenrod;
+    border-width: 2px;
+    margin-right:500px;
+    margin-left:500px ;
+    margin-top: 100px;
+}
