@@ -39,9 +39,9 @@ app.get("/", (req, res) => {
   res.render("home",);
 });
 
-app.get('/products', function (req, res) {
-    res.render("products");
-    });
+// app.get('/products', function (req, res) {
+//     res.render("products");
+//     });
 
 app.get('/custom', function (req, res) {
     res.render("custom");
@@ -123,4 +123,21 @@ app.get('/logout',(req,res) => {
 
 app.listen(PORT, () => {
   console.log(`Node app is running on port 3000`);
+});
+
+// products page
+app.get("/products", (req, res) => {
+  const sort = req.query.sort || "default";
+
+  let sql = "SELECT * FROM products";
+  if (sort === "name") sql += " ORDER BY name ASC";
+  if (sort === "price_low") sql += " ORDER BY price ASC";
+  if (sort === "price_high") sql += " ORDER BY price DESC";
+
+  conn.query(sql, (err, results) => {
+    if (err) throw err;
+	console.log(results);
+    // 👇 pass products to the view
+    res.render("products", { products: results });
+  });
 });

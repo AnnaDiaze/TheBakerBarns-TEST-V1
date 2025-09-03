@@ -8,4 +8,53 @@
     <%- include('partials/navbar1.ejs') %>
   </header>
 </body>
+
+<!-- products side-bar -->
+<div class="shop-container">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <h3>Shop Online</h3>
+    <ul>
+      <li><a href="/products?category=cakes">Cakes</a></li>
+      <li><a href="/products?category=cookies">Cookies</a></li>
+      <li><a href="/products?category=cupcakes">Cupcakes</a></li>
+      <li><a href="/products?category=bread">Bread</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main Section -->
+  <main class="products-main">
+    <!-- Sorting -->
+    <div class="sort-bar">
+      <span>Showing <%= products.length %> results</span>
+      <div class="sort-select">
+        <label for="sort">Sort by:</label>
+        <select id="sort" name="sort" onchange="location = '?sort=' + this.value;">
+          <option value="default">Default</option>
+          <option value="name">Name (A–Z)</option>
+          <option value="price_low">Price (Low → High)</option>
+          <option value="price_high">Price (High → Low)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="product-grid">
+      <% products.forEach(product => { %>
+        <div class="product-card">
+          <img src="<%= product.image_url %>" alt="<%= product.name %>">
+          <h3><%= product.name %></h3>
+          <p class="price">$<%= product.price.toFixed(2) %></p>
+
+          <form action="/cart/add" method="POST" class="cart-form">
+            <input type="hidden" name="product_id" value="<%= product.id %>">
+            <input type="number" name="quantity" value="1" min="1">
+            <button type="submit" class="btn">Add to Cart</button>
+          </form>
+        </div>
+      <% }) %>
+    </div>
+  </main>
+</div>
+
 </html>
