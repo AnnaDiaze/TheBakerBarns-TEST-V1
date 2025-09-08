@@ -33,7 +33,6 @@ app.use(session({
 	saveUninitialized: true
 }));
 
-
 // Routes
 app.get("/", (req, res) => {
   res.render("home",);
@@ -86,33 +85,69 @@ app.post('/register', function(req, res) {
 	}
 });
 
-//This will check whether the records in the table match with the credentials 
-//entered during login.
-app.post('/auth', function(req, res) {
-	let email = req.body.email;
-	let password = req.body.password;
-	if (email && password) {
-		conn.query('SELECT * FROM users WHERE email = ? AND password = ?', [email, password], 
-		function(error, results, fields) {
-			if (error) throw error;
-			if (results.length > 0) {
-				req.session.loggedin = true;
-				req.session.email = email;
-				req.session.role =  results[0].role;
-				console.log("user name :", results[0].user_name);
-				console.log("user role :", results[0].role);
-				console.log("user email :", results[0].email);
+// //This will check whether the records in the table match with the credentials 
+// //entered during login.
+// app.post('/auth', function(req, res) {
+// 	let email = req.body.email;
+// 	let password = req.body.password;
+// 	if (email && password) {
+// 		conn.query('SELECT * FROM users WHERE email = ? AND password = ?', [email, password], 
+// 		function(error, results, fields) {
+// 			if (error) throw error;
+// 			if (results.length > 0) {
+// 				req.session.loggedin = true;
+// 				req.session.email = email;
+// 				req.session.role =  results[0].role;
+// 				console.log("user name :", results[0].user_name);
+// 				console.log("user role :", results[0].role);
+// 				console.log("user email :", results[0].email);
 				
-				res.redirect('/');
-			} else {
-				res.send('Incorrect Email and/or Password!');
-			}			
-			res.end();
-		});
-	} else {
-		res.send('Please enter Username and Password!');
-		res.end();
-	}
+// 				res.redirect('/');
+// 			} else {
+// 				res.send('Incorrect Email and/or Password!');
+// 			}			
+// 			res.end();
+// 		});
+// 	} else {
+// 		res.send('Please enter Username and Password!');
+// 		res.end();
+// 	}
+// });
+
+//NEW /auth route
+app.post('/auth', function(req, res) {
+    let email = req.body.email;
+    let password = req.body.password;
+
+    if (email && password) {
+        conn.query('SELECT * FROM users WHERE email = ? AND password = ?', [email, password], 
+        function(error, results) {
+            if (error) throw error;
+
+            if (results.length > 0) {
+                // ✅ Set session user object
+                req.session.user = {
+                    id: results[0].id,
+                    username: results[0].user_name,
+                    email: results[0].email,
+                    role: results[0].role // must be "admin" for admin user
+                };
+
+                console.log("User logged in:", req.session.user);
+
+                // Redirect based on role
+                if (results[0].role === "admin") {
+                    res.redirect("/admin/products"); // admin goes to product management page
+                } else {
+                    res.redirect("/"); // regular user goes to home page
+                }
+            } else {
+                res.send('Incorrect Email and/or Password!');
+            }
+        });
+    } else {
+        res.send('Please enter Email and Password!');
+    }
 });
 
 //This will be used to return to home page after the members logout.
@@ -141,3 +176,7 @@ app.get("/products", (req, res) => {
     res.render("products", { products: results });
   });
 });
+
+// adminproducts page
+const adminProducts = require("./routes/adminProducts");
+app.use("/admin/products", adminProducts);

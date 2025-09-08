@@ -199,3 +199,12 @@ footer {
 .btn:hover {
   background: #b35414;
 }
+
+.description-box {
+  width: 100%;      /* fill the table cell */
+  min-width: 200px; /* optional: set a minimum width */
+  max-width: 100%;  /* don’t overflow cell */
+  height: 60px;     /* adjust for multiple lines */
+  resize: vertical; /* allow user to resize height */
+  box-sizing: border-box; /* include padding in width */
+}
