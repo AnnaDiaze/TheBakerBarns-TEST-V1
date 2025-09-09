@@ -208,3 +208,16 @@ footer {
   resize: vertical; /* allow user to resize height */
   box-sizing: border-box; /* include padding in width */
 }
+
+/* login move to top right-side */
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+nav .right {
+  margin-left: auto;
+  display: flex;
+  gap: 10px;
+}

@@ -33,14 +33,16 @@ app.use(session({
 	saveUninitialized: true
 }));
 
+// Make session user available in all views
+app.use((req, res, next) => {
+    res.locals.user = req.session.user || null;
+    next();
+});
+
 // Routes
 app.get("/", (req, res) => {
   res.render("home",);
 });
-
-// app.get('/products', function (req, res) {
-//     res.render("products");
-//     });
 
 app.get('/custom', function (req, res) {
     res.render("custom");
@@ -84,35 +86,6 @@ app.post('/register', function(req, res) {
 		console.log("Error");
 	}
 });
-
-// //This will check whether the records in the table match with the credentials 
-// //entered during login.
-// app.post('/auth', function(req, res) {
-// 	let email = req.body.email;
-// 	let password = req.body.password;
-// 	if (email && password) {
-// 		conn.query('SELECT * FROM users WHERE email = ? AND password = ?', [email, password], 
-// 		function(error, results, fields) {
-// 			if (error) throw error;
-// 			if (results.length > 0) {
-// 				req.session.loggedin = true;
-// 				req.session.email = email;
-// 				req.session.role =  results[0].role;
-// 				console.log("user name :", results[0].user_name);
-// 				console.log("user role :", results[0].role);
-// 				console.log("user email :", results[0].email);
-				
-// 				res.redirect('/');
-// 			} else {
-// 				res.send('Incorrect Email and/or Password!');
-// 			}			
-// 			res.end();
-// 		});
-// 	} else {
-// 		res.send('Please enter Username and Password!');
-// 		res.end();
-// 	}
-// });
 
 //NEW /auth route
 app.post('/auth', function(req, res) {
