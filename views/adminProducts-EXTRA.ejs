@@ -1,0 +1,61 @@
+<html>
+<head>
+    <%- include('partials/header1.ejs') %>
+</head>
+<body>
+  <header>
+    <h1>The Baker Barns Bakery</h1>
+    <%- include('partials/navbar1.ejs') %>
+  </header>
+</body>
+
+<h1>Manage Products</h1>
+
+<!-- Add new product -->
+<h3>Add New Product</h3>
+<form action="/admin/products/add" method="POST">
+  <input type="text" name="name" placeholder="Product Name" required />
+  <input type="number" name="price" placeholder="Price" step="0.01" min="0" required />
+  <input type="description" placeholder="Description">
+  <input type="number" name="stock" placeholder="Stock" required>
+  <input type="text" name="category" placeholder="Category" required />
+  <button type="submit">Add Product</button>
+</form>
+
+<!-- List existing products -->
+<h3>All Products</h3>
+<table border="1">
+  <tr>
+    <th>Name</th>
+    <th>Price</th>
+    <th class="description-column">Description</th>
+    <th>Stock</th>
+    <th>Category</th>
+    <th>Actions</th>
+  </tr>
+  <% products.forEach(function(product) { %>
+    <tr>
+      <td><%= product.id %></td>
+      <td><%= product.name %></td>
+      <td><%= product.price %></td>
+      <td><%= product.description %></td>
+      <td><%= product.stock %></td>
+      <td><%= product.category %></td>
+      <td>
+        <form action="/admin/products/update" method="POST" style="display:inline;">
+          <input type="text" name="name" placeholder="Product Name" required>
+          <input type="number" name="price" placeholder="Product Price" required step="0.01" min="0">
+          <input type ="text" name="description" placeholder="Product Description" required>
+          <input type="number" name="stock" placeholder="Stock" required>
+          <input type="text" name="category" placeholder="Category" required>
+          <button type="submit">Update</button></td></form>
+      </td>
+      <td>
+        <form action="/admin/products/delete" method="POST" style="display:inline;">
+          <td><button type="submit">Delete</button></td>
+        </form>
+      </td>
+    </tr>
+  <% }) %>
+</table>
+</html>

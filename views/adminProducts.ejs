@@ -22,6 +22,7 @@
 <hr>
 
 <!-- List existing products -->
+<h3>All Products</h3>
 <table border="1">
   <tr>
     <th>Name</th><th>Price</th><th class="description-column">Description</th><th>Actions</th>
@@ -31,14 +32,12 @@
       <form action="/admin/products/update/<%= product.id %>" method="POST">
         <td><input type="text" name="name" value="<%= product.name %>"></td>
         <td><input type="number" name="price" value="<%= product.price %>" step="0.01" min="0"></td>
-         <td><textarea class="description-box"><%= product.description %></textarea></td>
-      <td>
-          <button type="submit">Update</button>
-        </form>
-        <form action="/admin/products/delete/<%= product.id %>" method="POST" style="display:inline;">
-          <button type="submit">Delete</button>
-        </form>
-        </td>
+        <td><textarea class="description-box"><%= product.description %></textarea></td>
+        <td><button type="submit">Update</button></td>
+      </form>
+      <form action="/admin/products/delete/<%= product.id %>" method="POST" style="display:inline;">
+        <td><button type="submit">Delete</button></td>
+      </form>
     </tr>
   <% }) %>
 </table>
