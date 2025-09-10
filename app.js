@@ -1,6 +1,5 @@
 const express = require("express");
 const path = require("path");
-
 const app = express();
 const PORT = 3000;
 
@@ -39,7 +38,19 @@ app.use((req, res, next) => {
     next();
 });
 
-// Routes
+// Cart session available in all view
+app.use((req, res, next) => {
+  res.locals.cart = req.session.cart || [];
+  next();
+});
+
+// for AJAX
+app.use(express.json()); 
+// for forms
+app.use(express.urlencoded({ extended: true })); 
+
+
+// ROUTES
 app.get("/", (req, res) => {
   res.render("home",);
 });
@@ -66,6 +77,10 @@ app.get('/login',function(req,res){
 
 app.get('/register',function(req,res){
     res.render("register",{title:'Register'});
+});
+
+app.get("/cart", (req, res) => {
+  res.render("cart", { cart: req.session.cart || [] });
 });
 
 //This will send a POST request to '/register' which will store 
@@ -127,16 +142,6 @@ app.post('/auth', function(req, res) {
 const adminProducts = require("./routes/adminProducts");
 app.use("/admin/products", adminProducts);
 
-//This will be used to return to home page after the members logout.
-app.get('/logout',(req,res) => {
-	req.session.destroy();
-	res.redirect('/');
-});
-
-app.listen(PORT, () => {
-  console.log(`Node app is running on port 3000`);
-});
-
 // products page
 app.get("/products", (req, res) => {
   let productSql = `
@@ -179,4 +184,63 @@ app.get("/products", (req, res) => {
       });
     });
   });
+});
+
+// Add to cart
+app.post("/cart/add", (req, res) => {
+  const { product_id, quantity } = req.body;
+
+  // Example: fetch product from DB
+  conn.query("SELECT * FROM products WHERE id = ?", [product_id], (err, results) => {
+    if (err) throw err;
+    if (results.length === 0) return res.json({ success: false, message: "Product not found" });
+
+    const product = results[0];
+
+    if (!req.session.cart) req.session.cart = [];
+
+    // Check if already in cart
+    const existing = req.session.cart.find(item => item.id === product.id);
+    if (existing) {
+      existing.quantity += parseInt(quantity);
+    } else {
+      req.session.cart.push({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: parseInt(quantity)
+      });
+    }
+
+    res.json({ success: true });
+  });
+});
+
+// Update quantity
+app.post('/cart/update', (req, res) => {
+  const { product_id, quantity } = req.body;
+  if (req.session.cart) {
+    const item = req.session.cart.find(p => p.id == product_id);
+    if (item) item.quantity = parseInt(quantity);
+  }
+  res.redirect('/cart');
+});
+
+// Remove item
+app.post('/cart/remove', (req, res) => {
+  const { product_id } = req.body;
+  if (req.session.cart) {
+    req.session.cart = req.session.cart.filter(p => p.id != product_id);
+  }
+  res.redirect('/cart');
+});
+
+//This will be used to return to home page after the members logout.
+app.get('/logout',(req,res) => {
+	req.session.destroy();
+	res.redirect('/');
+});
+
+app.listen(PORT, () => {
+  console.log(`Node app is running on port 3000`);
 });

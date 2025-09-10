@@ -47,12 +47,12 @@
           <img src="<%= product.image_url %>" alt="<%= product.name %>">
           <h3><%= product.name %></h3>
           <p class="price">$<%= product.price.toFixed(2) %></p>
-
-          <form action="/cart/add" method="POST" class="cart-form">
-            <input type="hidden" name="product_id" value="<%= product.id %>">
+          
+          <form class="cart-form" data-product-id="<%= product.id %>">
             <input type="number" name="quantity" value="1" min="1">
             <button type="submit" class="btn">Add to Cart</button>
-          </form>
+          </form>          
+
         </div>
       <% }) %>
     </div>
@@ -60,3 +60,36 @@
 </div>
 
 </html>
+
+<!-- Add JS for AJAX -->
+<script>
+document.querySelectorAll('.cart-form').forEach(form => {
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const productId = form.getAttribute('data-product-id');
+    const quantity = form.querySelector('input[name="quantity"]').value;
+
+    const res = await fetch('/cart/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ product_id: productId, quantity })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      // Update cart count in navbar
+      const cartLink = document.querySelector('a[href="/cart"]');
+      const countMatch = cartLink.textContent.match(/\((\d+)\)/);
+      let count = countMatch ? parseInt(countMatch[1]) : 0;
+      count += parseInt(quantity);
+      cartLink.textContent = `🛒 Cart (${count})`;
+
+      alert("Item added to cart!");
+    } else {
+      alert("Failed to add item");
+    }
+  });
+});
+</script>

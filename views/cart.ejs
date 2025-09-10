@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('partials/header1.ejs') %>
+  <meta charset="UTF-8">
+  <title>Shopping Cart</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    .cart-container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #fff8f0;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .cart-container h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #c0392b;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background: #f39c12;
+      color: white;
+    }
+
+    td img {
+      width: 60px;
+      border-radius: 8px;
+    }
+
+    .btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .btn-update {
+      background: #27ae60;
+      color: white;
+    }
+
+    .btn-delete {
+      background: #e74c3c;
+      color: white;
+    }
+
+    .cart-total {
+      text-align: right;
+      font-size: 1.2em;
+      margin-top: 10px;
+    }
+
+    .checkout-btn {
+      background: #2980b9;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      float: right;
+      text-decoration: none;
+    }
+
+    .empty-cart {
+      text-align: center;
+      font-size: 1.2em;
+      color: #7f8c8d;
+    }
+  </style>
+</head>
+<body>
+    <header>
+        <h1>The Baker Barns Bakery</h1>
+        <%- include('partials/navbar1.ejs') %>
+    </header>
+  <div class="cart-container">
+    <h2>🛒 Your Shopping Cart</h2>
+
+    <% if (!cart || cart.length === 0) { %>
+      <p class="empty-cart">Your cart is empty.</p>
+    <% } else { %>
+      <table>
+        <tr>
+          <!-- <th>Image</th> -->
+          <th>Product</th>
+          <th>Price</th>
+          <th>Quantity</th>
+          <th>Subtotal</th>
+          <th>Actions</th>
+        </tr>
+
+        <% cart.forEach(item => { %>
+          <tr>
+            <!-- <td><img src="<%= item.image_url %>" alt="<%= item.name %>"></td> -->
+            <td><%= item.name %></td>
+            <td>$<%= item.price.toFixed(2) %></td>
+            <td>
+              <form action="/cart/update" method="POST" style="display:inline-block;">
+                <input type="hidden" name="product_id" value="<%= item.id %>">
+                <input type="number" name="quantity" value="<%= item.quantity %>" min="1" style="width:60px;">
+                <button type="submit" class="btn btn-update">Update</button>
+              </form>
+            </td>
+            <td>$<%= (item.price * item.quantity).toFixed(2) %></td>
+            <td>
+              <form action="/cart/remove" method="POST" style="display:inline-block;">
+                <input type="hidden" name="product_id" value="<%= item.id %>">
+                <button type="submit" class="btn btn-delete">Remove</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </table>
+
+      <p class="cart-total">
+        <strong>Total: $<%= cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2) %></strong>
+      </p>
+
+      <a href="/checkout" class="checkout-btn">Proceed to Checkout</a>
+    <% } %>
+  </div>
+</body>
+</html>

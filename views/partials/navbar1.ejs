@@ -17,5 +17,7 @@
          <a href="/register">Register</a>
          <a href="/login" style="float:right;">Login</a>
     <% } %>
+    <a href="/cart"> 🛒 Cart <% if (cart && cart.length > 0) { %> (<%= cart.length %>) <% } %>
+    </a>
   </div>
 </nav>
