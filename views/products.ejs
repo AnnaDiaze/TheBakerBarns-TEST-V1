@@ -9,16 +9,18 @@
   </header>
 </body>
 
-<!-- products side-bar -->
-<div class="shop-container">
-  <!-- Sidebar -->
+  <!-- products side-bar -->
   <aside class="sidebar">
     <h3>Shop Online</h3>
     <ul>
-      <li><a href="/products?category=Birthday cake">Cakes</a></li>
-      <li><a href="/products?category=Party cake">Party cake</a></li>
-      <li><a href="/products?category=Cupcakes">Cupcakes</a></li>
-      <li><a href="/products?category=cake rolls">Cake Rolls</a></li>
+      <% categories.forEach(cat => { %>
+        <li>
+          <a 
+          href="/products?category=<%= cat.id %>" 
+          class="<%= currentCategory == cat.id ? 'active' : '' %>">
+          <%= cat.name %></a>
+        </li>
+      <% }) %>
     </ul>
   </aside>
 

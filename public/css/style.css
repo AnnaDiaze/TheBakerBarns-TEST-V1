@@ -221,3 +221,8 @@ nav .right {
   display: flex;
   gap: 10px;
 }
+
+.sidebar a.active {
+  font-weight: bold;
+  color: #c0392b; /* highlight color */
+}

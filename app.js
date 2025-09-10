@@ -123,6 +123,10 @@ app.post('/auth', function(req, res) {
     }
 });
 
+// adminproducts page
+const adminProducts = require("./routes/adminProducts");
+app.use("/admin/products", adminProducts);
+
 //This will be used to return to home page after the members logout.
 app.get('/logout',(req,res) => {
 	req.session.destroy();
@@ -135,21 +139,44 @@ app.listen(PORT, () => {
 
 // products page
 app.get("/products", (req, res) => {
-  const sort = req.query.sort || "default";
+  let productSql = `
+    SELECT p.*, c.name AS category_name
+    FROM products p
+    JOIN product_category c ON p.category_id = c.id
+  `;
+  const productParams = [];
 
-  let sql = "SELECT * FROM products";
-  if (sort === "name") sql += " ORDER BY name ASC";
-  if (sort === "price_low") sql += " ORDER BY price ASC";
-  if (sort === "price_high") sql += " ORDER BY price DESC";
+  if (req.query.category) {
+    productSql += " WHERE p.category_id = ?";
+    productParams.push(req.query.category);
+  }
 
-  conn.query(sql, (err, results) => {
+  // Sorting
+  if (req.query.sort) {
+    if (req.query.sort === "name") {
+      productSql += " ORDER BY p.name ASC";
+    } else if (req.query.sort === "price_low") {
+      productSql += " ORDER BY p.price ASC";
+    } else if (req.query.sort === "price_high") {
+      productSql += " ORDER BY p.price DESC";
+    }
+  }
+
+  // Get categories + products
+  const categorySql = "SELECT id, name FROM product_category ORDER BY name";
+
+  conn.query(productSql, productParams, (err, products) => {
     if (err) throw err;
-	console.log(results);
-    // 👇 pass products to the view
-    res.render("products", { products: results });
+
+    conn.query(categorySql, (err, categories) => {
+      if (err) throw err;
+
+      res.render("products", {
+        products,
+        categories,
+        currentCategory: req.query.category || null,
+        sort: req.query.sort || "default"
+      });
+    });
   });
 });
-
-// adminproducts page
-const adminProducts = require("./routes/adminProducts");
-app.use("/admin/products", adminProducts);
