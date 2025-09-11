@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('partials/header1.ejs') %>
+  <meta charset="UTF-8">
+  <title>Order Success</title>
+  <style>
+    .success-container {
+      text-align: center;
+      margin: 50px auto;
+      max-width: 600px;
+      padding: 20px;
+      background: #eafaf1;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    h2 { color: #27ae60; }
+    p { font-size: 1.1em; }
+  </style>
+</head>
+<body>
+    <header>
+        <h1>The Baker Barns Bakery</h1>
+        <%- include('partials/navbar1.ejs') %>
+    </header>
+  <div class="success-container">
+    <h2>🎉 Thank You!</h2>
+    <p>Your order <strong>#<%= orderId %></strong> has been placed successfully.</p>
+    <p>We’ll notify you once it’s ready for pickup.</p>
+    <a href="/products">Continue Shopping</a>
+  </div>
+</body>
+</html>

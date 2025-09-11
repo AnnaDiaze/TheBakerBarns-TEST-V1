@@ -79,6 +79,7 @@ app.get('/register',function(req,res){
     res.render("register",{title:'Register'});
 });
 
+// Show cart form
 app.get("/cart", (req, res) => {
   res.render("cart", { cart: req.session.cart || [] });
 });
@@ -115,7 +116,7 @@ app.post('/auth', function(req, res) {
             if (results.length > 0) {
                 // ✅ Set session user object
                 req.session.user = {
-                    id: results[0].id,
+                    id: results[0].user_id,
                     username: results[0].user_name,
                     email: results[0].email,
                     role: results[0].role // must be "admin" for admin user
@@ -216,7 +217,7 @@ app.post("/cart/add", (req, res) => {
   });
 });
 
-// Update quantity
+// Update quantity in the cart
 app.post('/cart/update', (req, res) => {
   const { product_id, quantity } = req.body;
   if (req.session.cart) {
@@ -226,13 +227,79 @@ app.post('/cart/update', (req, res) => {
   res.redirect('/cart');
 });
 
-// Remove item
+// Remove item from cart
 app.post('/cart/remove', (req, res) => {
   const { product_id } = req.body;
   if (req.session.cart) {
     req.session.cart = req.session.cart.filter(p => p.id != product_id);
   }
   res.redirect('/cart');
+});
+
+// Show checkout form
+app.get('/checkout', (req, res) => {
+  const cart = req.session.cart || [];
+  if (cart.length === 0) {
+    return res.redirect('/cart'); // no empty checkout
+  }
+  res.render('checkout', { cart, user: req.session.user });
+});
+
+// // CHECKOUT- TRY-1
+// // Handle checkout form submission
+app.post('/checkout', (req, res) => {
+  const cart = req.session.cart || [];
+  if (cart.length === 0) {
+    return res.redirect('/cart');
+  }
+
+  const { guest_name, guest_email, guest_phone, pickup_date } = req.body;
+  const customer_id = req.session.user ? req.session.user.id : null;
+  const total_amount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  const orderData = {
+    customer_id,
+    guest_name: guest_name || null,
+    guest_email: guest_email || null,
+    guest_phone: guest_phone || null,
+    order_date: new Date(),
+    pickup_date,
+    status: 'pending',
+    total_amount
+  };
+
+  conn.query('INSERT INTO orders SET ?', orderData, (err, result) => {
+    if (err) {
+      console.error('Error inserting order:', err);  // log error to server
+      return res.status(500).send('Something went wrong while placing your order. Please try again.');
+    }
+
+    const orderId = result.insertId;
+
+    const orderItems = cart.map(item => [
+      orderId,
+      item.id,
+      null, // custom_cake_id if needed
+      item.quantity,
+      item.price
+    ]);
+
+    conn.query(
+      'INSERT INTO order_items (order_id, product_id, custom_cake_id, quantity, price_each) VALUES ?',
+      [orderItems],
+      (err2) => {
+        if (err2) {
+          console.error('Error inserting order items:', err2);
+          return res.status(500).send('Something went wrong while saving your order items. Please try again.');
+        }
+
+        // Clear cart
+        req.session.cart = [];
+
+        res.render('order-success', { orderId });
+      }
+    );
+  });
 });
 
 //This will be used to return to home page after the members logout.
