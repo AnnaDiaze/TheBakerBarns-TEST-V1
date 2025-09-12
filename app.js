@@ -254,6 +254,21 @@ app.post('/checkout', (req, res) => {
   }
 
   const { guest_name, guest_email, guest_phone, pickup_date } = req.body;
+  // Validation: pickup date must be >= tomorrow
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+
+  const selectedDate = new Date(pickup_date);
+
+  if (selectedDate < tomorrow) {
+    return res.status(400).send("Pickup date must be from tomorrow onwards.");
+    // or render an error view instead of plain text
+  }
+
+   // ... continue inserting into orders + order_items
   const customer_id = req.session.user ? req.session.user.id : null;
   const total_amount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 

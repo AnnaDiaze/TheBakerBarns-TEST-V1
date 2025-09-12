@@ -65,7 +65,12 @@
       <% } %>
 
       <label for="pickup_date">Pickup Date</label>
-      <input type="date" name="pickup_date" required>
+      <input type="date" id="pickup_date" name="pickup_date" required 
+      min="<%= (() => { 
+        let d = new Date(); 
+        d.setDate(d.getDate() + 1); 
+        return d.toISOString().split('T')[0]; 
+        })() %>">
 
       <button type="submit" class="btn-submit">Place Order</button>
     </form>
