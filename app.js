@@ -142,6 +142,12 @@ app.post('/auth', function(req, res) {
 // adminproducts page
 const adminProducts = require("./routes/adminProducts");
 app.use("/admin/products", adminProducts);
+// adminOrders page
+const adminOrders = require("./routes/adminOrders");
+app.use("/admin/orders", adminOrders)
+// adminOrderDetails page
+// const adminOrderDetails = require("./routes/adminOrderDetails");
+// app.use("/admin/orderdetails", adminOrderDetails);
 
 // products page
 app.get("/products", (req, res) => {
@@ -316,6 +322,73 @@ app.post('/checkout', (req, res) => {
     );
   });
 });
+
+// Show all Orders (Admin view)
+app.get('/admin/orders', (req, res) => {
+  const sql = `
+    SELECT o.*, 
+           COALESCE(u.user_name, o.guest_name) AS customer_name
+    FROM orders o
+    LEFT JOIN users u ON o.customer_id = u.user_id
+    ORDER BY o.created_at DESC
+  `;
+  
+  conn.query(sql, (err, orders) => {
+    if (err) throw err;
+    res.render('adminOrders', { orders });
+  });
+});
+
+// Update order status
+app.post('/admin/orders/update/:id', (req, res) => {
+  const orderId = req.params.id;
+  const { status } = req.body;
+
+  conn.query(
+    'UPDATE orders SET status = ? WHERE id = ?',
+    [status, orderId],
+    (err) => {
+      if (err) throw err;
+      res.redirect('/admin/orders');
+    }
+  );
+});
+
+// View single order details (Admin view)
+app.get('/admin/orders/:id', (req, res) => {
+  const orderId = req.params.id;
+
+  // Get order info
+  const orderSql = `
+    SELECT o.*, COALESCE(u.user_name, o.guest_name) AS customer_name
+    FROM orders o
+    LEFT JOIN users u ON o.customer_id = u.user_id
+    WHERE o.id = ?
+  `;
+
+  // Get order items
+  const itemsSql = `
+    SELECT oi.*, p.name AS product_name
+    FROM order_items oi
+    JOIN products p ON oi.product_id = p.id
+    WHERE oi.order_id = ?
+  `;
+
+  conn.query(orderSql, [orderId], (err, orderResult) => {
+    if (err) throw err;
+    if (orderResult.length === 0) {
+      return res.status(404).send('Order not found');
+    }
+
+    const order = orderResult[0];
+
+    conn.query(itemsSql, [orderId], (err2, itemsResult) => {
+      if (err2) throw err2;
+      res.render('adminOrderDetails', { order, items: itemsResult });
+    });
+  });
+});
+
 
 //This will be used to return to home page after the members logout.
 app.get('/logout',(req,res) => {
