@@ -1,9 +1,14 @@
 //reusable middleware to check if user is an admin.
-// middleware/auth.js
+
 function isAdmin(req, res, next) {
-  if (req.session && req.session.user && req.session.user.role === "admin") {
-    return next();
+  if (req.session && req.session.user) {
+    if (req.session.user.role === "admin") {
+      return next();
+    } else {
+      return res.redirect("/"); // send regular users to homepage
+    }
   }
-  res.redirect("/login");
+  res.redirect("/login"); // not logged in at all
 }
+
 module.exports = isAdmin;
