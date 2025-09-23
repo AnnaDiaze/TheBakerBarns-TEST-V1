@@ -89,7 +89,9 @@ app.use('/admin/Orders', adminOrdersRouter);
 const adminProductsRouter = require('./routes/adminProducts');
 app.use('/admin/Products', adminProductsRouter);
 
-
+// About us page -> contact_messages
+const contactRouter = require('./routes/contact');
+app.use('/contact', contactRouter);
 
 // Show cart form
 app.get("/cart", (req, res) => {
@@ -157,9 +159,6 @@ app.use("/admin/products", adminProducts);
 // adminOrders page
 const adminOrders = require("./routes/adminOrders");
 app.use("/admin/orders", adminOrders)
-// adminOrderDetails page
-// const adminOrderDetails = require("./routes/adminOrderDetails");
-// app.use("/admin/orderdetails", adminOrderDetails);
 
 // products page
 app.get("/products", (req, res) => {
@@ -263,8 +262,7 @@ app.get('/checkout', (req, res) => {
   res.render('checkout', { cart, user: req.session.user });
 });
 
-// // CHECKOUT- TRY-1
-// // Handle checkout form submission
+// Handle checkout form submission
 app.post('/checkout', (req, res) => {
   const cart = req.session.cart || [];
   if (cart.length === 0) {
