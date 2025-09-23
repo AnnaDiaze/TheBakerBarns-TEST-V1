@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+     <%- include('partials/header1.ejs') %>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Portal - The Baker Barns</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #d89b9b; /* pink background */
+    }
+    .admin-panel {
+      background-color: #3a2f2f; /* dark brown */
+      color: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+    .admin-panel a {
+      color: #fff;
+      text-decoration: underline;
+    }
+    .text-pink {
+      color: hotpink;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Existing Top Navbar -->
+   <header>
+    <h1>The Baker Barns Bakery</h1>
+    <%- include('partials/navbar1.ejs') %>
+  </header>
+
+  <!-- Admin Action Bar -->
+  <div class="d-flex flex-wrap p-2 bg-light border-bottom">
+    <a href="/admin/Orders" class="btn btn-outline-dark m-1">Manage Orders</a>
+    <a href="/admin/Products" class="btn btn-outline-dark m-1">Manage Products</a>
+    <a href="/admin/Users" class="btn btn-outline-dark m-1">Manage Users</a>
+    <a href="/admin/Blogs" class="btn btn-outline-dark m-1">Manage Blog posts</a>
+    <a href="/admin/Classes" class="btn btn-outline-dark m-1">Manage Classes</a>
+    <a href="/admin/About Us" class="btn btn-outline-dark m-1">Manage About Us</a>
+    <a href="/admin/Home" class="btn btn-outline-dark m-1">Manage Home</a>
+  </div>
+
+  <!-- Admin Main Panel -->
+  <div class="container">
+    <div class="admin-panel">
+      <h5 class="text-pink">Admin Portal</h5>
+      <h6 class="text-pink">My Duties</h6>
+      <ul>
+        <li><a href="/admin/Orders">Manage Orders</a></li>
+        <li><a href="/admin/Products">Manage Products</a></li>
+        <li><a href="/admin/Users">Manage Users</a></li>
+        <li><a href="/admin/Blogs">Manage Blog posts</a></li>
+        <li><a href="/admin/Classes">Manage Classes</a></li>
+        <li><a href="/admin/About Us">Manage About Us</a></li>
+        <li><a href="/admin/Home">Manage Home</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -79,6 +79,18 @@ app.get('/register',function(req,res){
     res.render("register",{title:'Register'});
 });
 
+// AdminOnly
+const adminOnlyRouter = require('./routes/adminOnly');
+app.use('/adminOnly', adminOnlyRouter);
+
+const adminOrdersRouter = require('./routes/adminOrders');
+app.use('/admin/Orders', adminOrdersRouter);
+
+const adminProductsRouter = require('./routes/adminProducts');
+app.use('/admin/Products', adminProductsRouter);
+
+
+
 // Show cart form
 app.get("/cart", (req, res) => {
   res.render("cart", { cart: req.session.cart || [] });
@@ -126,7 +138,7 @@ app.post('/auth', function(req, res) {
 
                 // Redirect based on role
                 if (results[0].role === "admin") {
-                    res.redirect("/admin/products"); // admin goes to product management page
+                    res.redirect("/adminOnly"); // admin goes to AdminOnly page
                 } else {
                     res.redirect("/"); // regular user goes to home page
                 }
