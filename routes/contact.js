@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const conn = require('../dbConfig'); // your DB connection
+const conn = require('../dbConfig');
 
 // Save contact message
 router.post('/', (req, res) => {
@@ -18,7 +18,9 @@ router.post('/', (req, res) => {
       return res.status(500).send("Database error");
     }
     console.log("Message saved with ID:", result.insertId);
-    res.redirect('/aboutus?success=1'); // redirect with success flag
+
+    // Instead of redirect, render aboutus.ejs with success flag
+    res.render('aboutus', { success: true });
   });
 });
 

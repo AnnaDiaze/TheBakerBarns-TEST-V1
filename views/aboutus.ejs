@@ -69,6 +69,7 @@
         <div class="contact-form">
           <h4>Contact me</h4>
           <form action="/contact" method="POST">
+            <% if (success) { %> <div class="alert alert-success">Thank you! Your message has been sent.</div><% } %>
             <div class="row mb-3">
               <div class="col">
                 <input type="text" name="first_name" class="form-control" placeholder="First name" required>

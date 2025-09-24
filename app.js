@@ -68,7 +68,7 @@ app.get('/blog', function (req, res) {
     });
 
 app.get('/aboutus', function (req, res) {
-    res.render("aboutus");
+    res.render('aboutus', { success: false });
     });
 
 app.get('/login',function(req,res){
