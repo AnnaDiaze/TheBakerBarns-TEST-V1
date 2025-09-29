@@ -63,9 +63,9 @@ app.get('/classes', function (req, res) {
     res.render("classes");
     });
 
-app.get('/blog', function (req, res) {
-    res.render("blog");
-    });
+// app.get('/blog', function (req, res) {
+//     res.render("blog");
+//     });
 
 app.get('/aboutus', function (req, res) {
     res.render('aboutus', { success: false });
@@ -89,9 +89,15 @@ app.use('/admin/Orders', adminOrdersRouter);
 const adminProductsRouter = require('./routes/adminProducts');
 app.use('/admin/Products', adminProductsRouter);
 
+const adminRecipesRoutes = require('./routes/adminRecipes');
+app.use('/admin/Recipes', adminRecipesRoutes);
+
 // About us page -> contact_messages
 const contactRouter = require('./routes/contact');
 app.use('/contact', contactRouter);
+
+const recipesRoutes = require('./routes/recipes');
+app.use('/', recipesRoutes);
 
 // Show cart form
 app.get("/cart", (req, res) => {

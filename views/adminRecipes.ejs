@@ -1,0 +1,62 @@
+<html>
+<head>
+    <%- include('partials/header1.ejs') %>
+</head>
+<body>
+  <header>
+    <h1>The Baker Barns Bakery</h1>
+    <%- include('partials/navbar1.ejs') %>
+  </header>
+</body>
+
+  <!-- Admin Action Bar -->
+  <div class="d-flex flex-wrap p-2 bg-light border-bottom">
+    <a href="/adminonly" class="btn btn-outline-dark m-1">Admin Panel</a>
+    <a href="/admin/Orders" class="btn btn-outline-dark m-1">Manage Orders</a>
+    <a href="/admin/Products" class="btn btn-outline-dark m-1">Manage Products</a>
+    <a href="/admin/Recipes" class="btn btn-outline-dark m-1">Manage Recipes</a>
+    <a href="/admin/Users" class="btn btn-outline-dark m-1">Manage Users</a>
+  </div>
+
+<h2>Manage Recipes</h2>
+
+<form action="/admin/Recipes/add" method="POST">
+  <input type="text" name="title" placeholder="Title" required>
+  <textarea name="description" placeholder="Description"></textarea>
+  <textarea name="ingredients" placeholder="Ingredients (one per line)"></textarea>
+  <textarea name="method" placeholder="Method (one step per line)"></textarea>
+  <input type="text" name="image" placeholder="Image URL" >
+  <!-- <input type="text" name="category" placeholder="Categories (comma separated)"> -->
+  <button type="submit">Add Recipe</button>
+</form>
+
+<table>
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Description</th>
+      <th>Ingredients</th>
+      <th>Method</th>
+      <th>Image</th>
+      <!-- <th>Category</th> -->
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% recipes.forEach(r => { %>
+      <tr>
+        <td><%= r.title %></td>
+        <td><%= r.description %></td>
+        <td><%= r.ingredients %></td>
+        <td><%= r.method %></td>
+        <!-- <td><%= r.category %></td> -->
+        <td><img src="<%= r.image %>" width="80"></td>
+        <td>
+          <a href="/admin/Recipes/update/<%= r.id %>">Update</a>
+          <a href="/admin/Recipes/delete/<%= r.id %>">Delete</a>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+</html>

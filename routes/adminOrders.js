@@ -5,9 +5,8 @@ const router = express.Router();
 const conn = require("../dbConfig");
 const isAdmin = require("../middleware/auth");
 
-// --------------------
 // Show all orders
-// --------------------
+
 router.get("/", isAdmin, (req, res) => {
   const query = `
     SELECT 
@@ -29,9 +28,9 @@ router.get("/", isAdmin, (req, res) => {
   });
 });
 
-// --------------------
+
 // View single order details
-// --------------------
+
 router.get("/:id", isAdmin, (req, res) => {
   const orderId = req.params.id;
 
@@ -71,9 +70,8 @@ router.get("/:id", isAdmin, (req, res) => {
   });
 });
 
-// --------------------
 // Update order status
-// --------------------
+
 router.post("/update/:id", isAdmin, (req, res) => {
   const { status } = req.body;
   conn.query(
@@ -86,9 +84,7 @@ router.post("/update/:id", isAdmin, (req, res) => {
   );
 });
 
-// --------------------
 // Delete order
-// --------------------
 router.post("/delete/:id", isAdmin, (req, res) => {
   conn.query("DELETE FROM orders WHERE id=?", [req.params.id], (err) => {
     if (err) throw err;
