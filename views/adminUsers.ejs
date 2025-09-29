@@ -1,0 +1,84 @@
+<html>
+<head>
+    <%- include('partials/header1.ejs') %>
+</head>
+<body>
+  <header>
+    <h1>The Baker Barns Bakery</h1>
+    <%- include('partials/navbar1.ejs') %>
+
+    <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 12px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+    th {
+      background: #f4f4f4;
+    }
+    form {
+      margin: 0;
+    }
+    select {
+      padding: 5px;
+    }
+    button {
+      padding: 6px 12px;
+      margin-left: 5px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    .back-link:hover { background: #45a049; }
+  </style>
+  </header>
+</body>
+
+  <!-- Admin Action Bar -->
+  <div class="d-flex flex-wrap p-2 bg-light border-bottom">
+    <a href="/adminonly" class="btn btn-outline-dark m-1">Admin Panel</a>
+    <a href="/admin/Orders" class="btn btn-outline-dark m-1">Manage Orders</a>
+    <a href="/admin/Products" class="btn btn-outline-dark m-1">Manage Products</a>
+    <a href="/admin/Recipes" class="btn btn-outline-dark m-1">Manage Recipes</a>
+    <a href="/admin/Users" class="btn btn-outline-dark m-1">Manage Users</a>
+  </div>
+
+<h2>Manage Users</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>User Name</th>
+      <th>Email</th>
+      <th>Phone number</th>
+      <th>Password</th>
+      <th>Role</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% users.forEach(r => { %>
+      <tr>
+        <td><%= r.user_name %></td>
+        <td><%= r.email %></td>
+        <td><%= r.phone %></td>
+        <td><%= r.password %></td>
+        <td><%= r.role %></td>
+        <td>
+          <a href="/admin/Users/update/<%= r.id %>">User Update</a>
+          <a href="/admin/Users/delete/<%= r.id %>">User Delete</a>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+</html>

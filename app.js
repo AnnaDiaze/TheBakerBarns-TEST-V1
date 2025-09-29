@@ -92,6 +92,9 @@ app.use('/admin/Products', adminProductsRouter);
 const adminRecipesRoutes = require('./routes/adminRecipes');
 app.use('/admin/Recipes', adminRecipesRoutes);
 
+const adminUsersRoutes = require('./routes/adminUsers');
+app.use('/admin/Users', adminUsersRoutes);
+
 // About us page -> contact_messages
 const contactRouter = require('./routes/contact');
 app.use('/contact', contactRouter);
