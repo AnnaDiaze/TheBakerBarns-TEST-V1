@@ -6,18 +6,26 @@
     <a href="/classes">Classes</a>
     <a href="/recipes">Recipes</a>
     <a href="/aboutus">About Us</a>
+
+    <% if (user && user.role === 'admin') { %>
+      <!-- ✅ Admin Panel only visible to admins -->
+      <a href="/adminonly">Admin Panel</a>
+    <% } %>
   </div>
+
   <div class="right">
     <% if (user) { %>
         <!-- ✅ Show username and logout -->
-         <span style="float:right; margin-left:15px;">Welcome, <%= user.username %>!</span>
-         <a href="/logout" style="float:right;">Logout</a><% }
-    else { %>
+        <span style="float:right; margin-left:15px;">Welcome, <%= user.username %>!</span>
+        <a href="/logout" style="float:right;">Logout</a>
+    <% } else { %>
         <!-- ❌ Not logged in -->
-         <a href="/register">Register</a>
-         <a href="/login" style="float:right;">Login</a>
+        <a href="/register">Register</a>
+        <a href="/login" style="float:right;">Login</a>
     <% } %>
-    <a href="/cart"> 🛒 Cart <% if (cart && cart.length > 0) { %> (<%= cart.length %>) <% } %>
+
+    <a href="/cart">
+      🛒 Cart <% if (cart && cart.length > 0) { %> (<%= cart.length %>) <% } %>
     </a>
   </div>
 </nav>
