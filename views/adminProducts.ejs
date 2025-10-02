@@ -7,6 +7,40 @@
     <h1>The Baker Barns Bakery</h1>
     <%- include('partials/navbar1.ejs') %>
   </header>
+
+      <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 12px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+    th {
+      background: #f4f4f4;
+    }
+    form {
+      margin: 0;
+    }
+    select {
+      padding: 5px;
+    }
+    button {
+      padding: 6px 12px;
+      margin-left: 5px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    .back-link:hover { background: #45a049; }
+  </style>
 </body>
 
   <!-- Admin Action Bar -->
@@ -23,25 +57,29 @@
 <!-- Add new product -->
 <form action="/admin/products/add" method="POST">
   <input type="text" name="name" placeholder="Product Name" required />
-  <input type="number" name="price" placeholder="Price" step="0.01" min="0" required />
   <textarea name="description" placeholder="Description"></textarea>
+  <input type="number" name="price" placeholder="Price" step="0.01" min="0" required />
+  <input type="number" name="stock" placeholder="Stock" step="0.01" min="0" required />
+  <input type="number" name="category_id" placeholder="Category" step="0.01" min="0" required />
   <button type="submit">Add Product</button>
 </form>
-
 <hr>
 
 <!-- List existing products -->
 <h3>All Products</h3>
 <table border="1">
   <tr>
-    <th>Name</th><th>Price</th><th class="description-column">Description</th><th>Actions</th>
+    <th>Name</th><th>Description</th><th>Price</th><th>Stock</th><th>Category</th><th>Update</th><th>Delete</th>
   </tr>
   <% products.forEach(product => { %>
     <tr>
       <form action="/admin/products/update/<%= product.id %>" method="POST">
-        <td><input type="text" name="name" value="<%= product.name %>"></td>
-        <td><input type="number" name="price" value="<%= product.price %>" step="0.01" min="0"></td>
-        <td><textarea class="description-box"><%= product.description %></textarea></td>
+        <td><input type="text" name="Name" value="<%= product.name %>"></td>
+        <td><textarea class="description-box"> value="<%= product.description %>"</textarea></td>
+        <!-- <td><input type = "text" name="Description" value="<%= product.description %>"></td> -->
+        <td><input type="number" name="Price" value="<%= product.price %>" step="0.01" min="0"></td>
+        <td><input type = "number" name="Stock" value="<%= product.stock %>"></td>
+        <td><input type = "number" name="Category" value="<%= product.category_id %>"></td>
         <td><button type="submit">Update</button></td>
       </form>
       <form action="/admin/products/delete/<%= product.id %>" method="POST" style="display:inline;">

@@ -15,10 +15,10 @@ router.get("/", isAdmin, (req, res) => {
 
 // Add new product
 router.post("/add", isAdmin, (req, res) => {
-  const { name, price, description } = req.body;
+  const { name, description, price, stock, category_id } = req.body;
   conn.query(
-    "INSERT INTO products (name, price, description) VALUES (?, ?, ?)",
-    [name, price, description],
+    "INSERT INTO products (name, description, price, stock, category_id ) VALUES (?, ?, ?, ?, ?)",
+    [name, description, price, stock, category_id],
     (err) => {
       if (err) throw err;
       res.redirect("/admin/products");
@@ -28,10 +28,10 @@ router.post("/add", isAdmin, (req, res) => {
 
 // Update product
 router.post("/update/:id", isAdmin, (req, res) => {
-  const { name, price, description } = req.body;
+  const { name, description, price, stock, category_id } = req.body;
   conn.query(
-    "UPDATE products SET name=?, price=?, description=? WHERE id=?",
-    [name, price, description, req.params.id],
+    "UPDATE products SET name=?, description=?, price=?, stock=?, category_id=? WHERE id=?",
+    [name, description, price, stock, category_id, req.params.id],
     (err) => {
       if (err) throw err;
       res.redirect("/admin/products");
