@@ -39,6 +39,16 @@
       background: #45a049;
     }
     .back-link:hover { background: #45a049; }
+
+    .btn-update {
+      background: #27ae60;
+      color: white;
+    }
+
+    .btn-delete {
+      background: #e74c3c;
+      color: white;
+    }
   </style>
   </header>
 </body>
@@ -62,7 +72,8 @@
       <th>Phone number</th>
       <th>Password</th>
       <th>Role</th>
-      <th>Action</th>
+      <th>User Details Update</th>
+      <th>User Delete</th>
     </tr>
   </thead>
   <tbody>
@@ -73,10 +84,8 @@
         <td><%= r.phone %></td>
         <td><%= r.password %></td>
         <td><%= r.role %></td>
-        <td>
-          <a href="/admin/Users/update/<%= r.id %>">User Update</a>
-          <a href="/admin/Users/delete/<%= r.id %>">User Delete</a>
-        </td>
+        <td><a href="/admin/Users/update/<%= r.id %>" class="btn btn-update">Update</a></td>
+        <td><a href="/admin/Users/delete/<%= r.id %>" class="btn btn-update">Delete</a></td>
       </tr>
     <% }) %>
   </tbody>
