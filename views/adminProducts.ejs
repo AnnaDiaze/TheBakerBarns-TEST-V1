@@ -1,6 +1,6 @@
 <html>
 <head>
-    <%- include('partials/header1.ejs') %>
+  <%- include('partials/header1.ejs') %>
 </head>
 <body>
   <header>
@@ -8,7 +8,7 @@
     <%- include('partials/navbar1.ejs') %>
   </header>
 
-      <style>
+  <style>
     table {
       width: 100%;
       border-collapse: collapse;
@@ -36,22 +36,10 @@
       border: none;
       cursor: pointer;
     }
-    button:hover {
-      background: #45a049;
-    }
-    .back-link:hover { background: #45a049; }
-
-    .btn-update {
-      background: #27ae60;
-      color: white;
-    }
-
-    .btn-delete {
-      background: #e74c3c;
-      color: white;
-    }
+    button:hover { background: #45a049; }
+    .btn-update { background: #27ae60; }
+    .btn-delete { background: #e74c3c; }
   </style>
-</body>
 
   <!-- Admin Action Bar -->
   <div class="d-flex flex-wrap p-2 bg-light border-bottom">
@@ -62,40 +50,81 @@
     <a href="/admin/Users" class="btn btn-outline-dark m-1">Manage Users</a>
   </div>
 
-<h1>Manage Products</h1>
+  <h1>Manage Products</h1>
 
-<!-- Add new product -->
-<form action="/admin/products/add" method="POST">
-  <input type="text" name="name" placeholder="Product Name" required />
-  <textarea name="description" placeholder="Description"></textarea>
-  <input type="number" name="price" placeholder="Price" step="0.01" min="0" required />
-  <input type="number" name="stock" placeholder="Stock" step="0.01" min="0" required />
-  <input type="number" name="category_id" placeholder="Category" step="0.01" min="0" required />
-  <button type="submit" class="btn btn-update">Add Product</button>
-</form>
-<hr>
+  <!-- Add new product -->
+  <form action="/admin/products/add" method="POST">
+    <input type="text" name="name" placeholder="Product Name" required />
+    <textarea name="description" placeholder="Description"></textarea>
+    <input type="number" name="price" placeholder="Price" step="0.01" min="0" required />
+    <input type="number" name="stock" placeholder="Stock" min="0" required />
 
-<!-- List existing products -->
-<h3>All Products</h3>
-<table>
-  <tr>
-    <th>Name</th><th>Description</th><th>Price</th><th>Stock</th><th>Category</th><th>Update</th><th>Delete</th>
-  </tr>
-  <% products.forEach(product => { %>
+    <select name="category_id" required>
+      <% categories.forEach(cat => { %>
+        <option value="<%= cat.id %>"><%= cat.name %></option>
+      <% }) %>
+    </select>
+
+    <button type="submit" class="btn btn-update">Add Product</button>
+  </form>
+
+  <hr>
+
+  <!-- List existing products -->
+  <h3>Active Products</h3>
+  <table>
     <tr>
-      <form action="/admin/products/update/<%= product.id %>" method="POST">
-        <td><input type="text" name="Name" value="<%= product.name %>"></td>
-        <td><textarea class="description-box">"<%= product.description %>"</textarea></td>
-        <td><input type="number" name="Price" value="<%= product.price %>" step="0.01" min="0"></td>
-        <td><input type = "number" name="Stock" value="<%= product.stock %>"></td>
-        <td><input type = "number" name="Category" value="<%= product.category_id %>"></td>
-        <td><button type="submit" class="btn btn-update">Update</button></td>
-      </form>
-      <form action="/admin/products/delete/<%= product.id %>" method="POST" style="display:inline;">
-        <td><button type="submit" class="btn btn-update">Delete</button></td>
-      </form>
+      <th>Name</th><th>Description</th><th>Price</th><th>Stock</th><th>Category</th><th>Update</th><th>Delete</th>
     </tr>
-  <% }) %>
-</table>
-<a href="/adminOnly" class="btn btn-update">← Back </a>
+    <% products.forEach(product => { %>
+      <tr>
+        <form action="/admin/products/update/<%= product.id %>" method="POST">
+          <td><input type="text" name="name" value="<%= product.name %>"></td>
+          <td><textarea name="description"><%= product.description %></textarea></td>
+          <td><input type="number" name="price" value="<%= product.price %>" step="0.01" min="0"></td>
+          <td><input type="number" name="stock" value="<%= product.stock %>"></td>
+          <td>
+            <select name="category_id" required>
+              <% categories.forEach(cat => { %>
+                <option value="<%= cat.id %>" <%= cat.id === product.category_id ? 'selected' : '' %>>
+                  <%= cat.name %>
+                </option>
+              <% }) %>
+            </select>
+          </td>
+          <td><button type="submit" class="btn btn-update">Update</button></td>
+        </form>
+        <form action="/admin/products/archive/<%= product.id %>" method="POST" style="display:inline;">
+          <td><button type="submit" class="btn btn-delete">Archive</button></td>
+        </form>
+      </tr>
+    <% }) %>
+  </table>
+
+  <hr>
+  <h3>Archived Products</h3>
+  <table>
+    <tr>
+      <th>Name</th><th>Description</th><th>Price</th><th>Stock</th><th>Category</th><th>Actions</th>
+    </tr>
+    <% archivedProducts.forEach(product => { %>
+      <tr>
+        <td><%= product.name %></td>
+        <td><%= product.description %></td>
+        <td><%= product.price %></td>
+        <td><%= product.stock %></td>
+        <td><%= product.category_id %></td>
+        <td>
+          <form action="/admin/products/restore/<%= product.id %>" method="POST" style="display:inline;">
+            <button type="submit" class="btn btn-update">Restore</button>
+          </form>
+        </td>
+      </tr>
+      <% }) %>
+    </table>
+
+
+
+  <a href="/adminOnly" class="btn btn-update">← Back </a>
+</body>
 </html>
