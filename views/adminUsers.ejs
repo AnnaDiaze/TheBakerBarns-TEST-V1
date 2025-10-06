@@ -52,7 +52,7 @@
     }
   </style>
 
-</body>
+
 
   <!-- Admin Action Bar -->
   <div class="d-flex flex-wrap p-2 bg-light border-bottom">
@@ -64,7 +64,7 @@
   </div>
   <body>
 
-<h2>Manage Users</h2>
+<h2>Manage Active Users</h2>
 
 <table>
   <thead>
@@ -74,30 +74,76 @@
       <th>Phone number</th>
       <th>Role</th>
       <th>Update</th>
+      <th>Block</th>
       <th>Delete</th>
     </tr>
   </thead>
+  
   <tbody>
-    <% users.forEach(r => { %>
-      <tr>
-        <form action="/admin/Users/update/<%= r.user_id %>" method="POST">
-          <td><input type="text" name="username" value="<%= r.user_name %>" required></td>
-          <td><input type="email" name="email" value="<%= r.email %>" required></td>
-          <td><input type="text" name="phone" value="<%= r.phone %>" required></td>
-          <td>
-            <select name="role" required>
-              <option value="admin" <%= r.role === 'admin' ? 'selected' : '' %>>Admin</option>
-              <option value="customer" <%= r.role === 'customer' ? 'selected' : '' %>>Customer</option>
-              <option value="baker" <%= r.role === 'baker' ? 'selected' : '' %>>Baker</option>
-              <option value="manager" <%= r.role === 'manager' ? 'selected' : '' %>>Manager</option>
-            </select>
-          </td>
-          <td><button type="submit" class="btn btn-update">Update</button></td>
-          <td><a href="/admin/Users/delete/<%= r.user_id %>" class="btn btn-delete">Delete</a></td>
+  <% users.forEach(r => { %>
+    <tr>
+      <!-- UPDATE FORM -->
+      <form action="/admin/Users/update/<%= r.user_id %>" method="POST">
+        <td><input type="text" name="username" value="<%= r.user_name %>" required></td>
+        <td><input type="email" name="email" value="<%= r.email %>" required></td>
+        <td><input type="text" name="phone" value="<%= r.phone %>" required></td>
+        <td>
+          <select name="role" required>
+            <option value="admin" <%= r.role === 'admin' ? 'selected' : '' %>>Admin</option>
+            <option value="customer" <%= r.role === 'customer' ? 'selected' : '' %>>Customer</option>
+            <option value="baker" <%= r.role === 'baker' ? 'selected' : '' %>>Baker</option>
+            <option value="manager" <%= r.role === 'manager' ? 'selected' : '' %>>Manager</option>
+          </select>
+        </td>
+        <td><button type="submit" class="btn btn-update">Update</button></td>
+      </form>
+
+      <!-- BLOCK FORM -->
+      <td>
+        <form action="/admin/Users/archive/<%= r.user_id %>" method="POST" style="display:inline;">
+          <button type="submit" class="btn btn-delete">Block</button>
         </form>
+      </td>
+
+      <!-- DELETE LINK -->
+      <td>
+        <a href="/admin/Users/delete/<%= r.user_id %>" class="btn btn-delete">Delete</a>
+      </td>
+    </tr>
+  <% }) %>
+</tbody>
+
+
+<h2>Manage Blocked Users</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>User Name</th>
+      <th>Email</th>
+      <th>Phone number</th>
+      <th>Role</th>
+      <th>Unblock</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% blockedUsers.forEach(r => { %>
+      <tr>
+        <td><%= r.user_name %></td>
+        <td><%= r.email %></td>
+        <td><%= r.phone %></td>
+        <td><%= r.role %></td>
+        <td>
+          <form action="/admin/Users/restore/<%= r.user_id %>" method="POST" style="display:inline;">
+            <button type="submit" class="btn btn-update">Unblock</button>
+          </form>
+        </td>
       </tr>
-    <% }) %>
-  </tbody>
+      <% }) %>
 </table>
+
+
+ <a href="/adminOnly" class="btn btn-update">← Back </a>
+</body>
 </body>
 </html>

@@ -3,12 +3,30 @@ const router = express.Router();
 const conn = require('../dbConfig');
 const isAdmin = require("../middleware/auth");
 
-// Show all Users 
+// Show all Users - OLD
+// router.get("/", isAdmin, (req, res) => {
+//     conn.query('SELECT * FROM users', (err, results) => {
+//         if (err) throw err;
+//         res.render('adminUsers', { users: results });
+//     });
+// });
+
+// show all active users-NEW
 router.get("/", isAdmin, (req, res) => {
-    conn.query('SELECT * FROM users', (err, results) => {
-        if (err) throw err;
-        res.render('adminUsers', { users: results });
+  const queryActive = "SELECT * FROM users WHERE is_active = 1";
+  const queryBlocked = "SELECT * FROM users WHERE is_active = 0";
+
+  conn.query(queryActive, (err, activeResults) => {
+    if (err) throw err;
+    conn.query(queryBlocked, (err2, blockedResults) => {
+      if (err) throw err2;
+
+      res.render("adminUsers", {
+        users: activeResults,
+        blockedUsers:blockedResults
+      });
     });
+  });
 });
 
 // Handle inline update form submission
@@ -29,6 +47,22 @@ router.get("/delete/:id", isAdmin, (req, res) => {
         if (err) throw err;
         res.redirect('/admin/Users');
     });
+});
+
+// Soft block user (block user)-NEW
+router.post("/archive/:id", isAdmin, (req, res) => {
+  conn.query("UPDATE users SET is_active = 0 WHERE user_id = ?", [req.params.id], (err) => {
+    if (err) throw err;
+    res.redirect("/admin/Users");
+  });
+});
+
+// unblock user-NEW
+router.post("/restore/:id", isAdmin, (req, res) => {
+  conn.query("UPDATE users SET is_active = 1 WHERE user_id = ?", [req.params.id], (err) => {
+    if (err) throw err;
+    res.redirect("/admin/Users");
+  });
 });
 
 module.exports = router;
