@@ -95,12 +95,21 @@ app.use('/admin/Recipes', adminRecipesRoutes);
 const adminUsersRoutes = require('./routes/adminUsers');
 app.use('/admin/Users', adminUsersRoutes);
 
-// About us page -> contact_messages
+// About us page -> contact_messages route
 const contactRouter = require('./routes/contact');
 app.use('/contact', contactRouter);
 
+// Recipes page route
 const recipesRoutes = require('./routes/recipes');
 app.use('/', recipesRoutes);
+
+// products page (our menu) route
+const productRoutes = require("./routes/products");
+app.use("/products", productRoutes);
+
+
+
+
 
 // Show cart form
 app.get("/cart", (req, res) => {
@@ -169,80 +178,7 @@ app.use("/admin/products", adminProducts);
 const adminOrders = require("./routes/adminOrders");
 app.use("/admin/orders", adminOrders)
 
-// products page
-app.get("/products", (req, res) => {
-  let productSql = `
-    SELECT p.*, c.name AS category_name
-    FROM products p
-    JOIN product_category c ON p.category_id = c.id
-  `;
-  const productParams = [];
-
-  if (req.query.category) {
-    productSql += " WHERE p.category_id = ?";
-    productParams.push(req.query.category);
-  }
-
-  // Sorting
-  if (req.query.sort) {
-    if (req.query.sort === "name") {
-      productSql += " ORDER BY p.name ASC";
-    } else if (req.query.sort === "price_low") {
-      productSql += " ORDER BY p.price ASC";
-    } else if (req.query.sort === "price_high") {
-      productSql += " ORDER BY p.price DESC";
-    }
-  }
-
-  // Get categories + products
-  const categorySql = "SELECT id, name FROM product_category ORDER BY name";
-
-  conn.query(productSql, productParams, (err, products) => {
-    if (err) throw err;
-
-    conn.query(categorySql, (err, categories) => {
-      if (err) throw err;
-
-      res.render("products", {
-        products,
-        categories,
-        currentCategory: req.query.category || null,
-        sort: req.query.sort || "default"
-      });
-    });
-  });
-});
-
-// Add to cart
-app.post("/cart/add", (req, res) => {
-  const { product_id, quantity } = req.body;
-
-  // Example: fetch product from DB
-  conn.query("SELECT * FROM products WHERE id = ?", [product_id], (err, results) => {
-    if (err) throw err;
-    if (results.length === 0) return res.json({ success: false, message: "Product not found" });
-
-    const product = results[0];
-
-    if (!req.session.cart) req.session.cart = [];
-
-    // Check if already in cart
-    const existing = req.session.cart.find(item => item.id === product.id);
-    if (existing) {
-      existing.quantity += parseInt(quantity);
-    } else {
-      req.session.cart.push({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        quantity: parseInt(quantity)
-      });
-    }
-
-    res.json({ success: true });
-  });
-});
-
+// CART AND CHECKOUT
 // Update quantity in the cart
 app.post('/cart/update', (req, res) => {
   const { product_id, quantity } = req.body;
