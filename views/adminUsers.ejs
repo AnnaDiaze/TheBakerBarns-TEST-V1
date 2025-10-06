@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
     <%- include('partials/header1.ejs') %>
@@ -5,8 +6,8 @@
 <body>
   <header>
     <h1>The Baker Barns Bakery</h1>
-    <%- include('partials/navbar1.ejs') %>
-
+   <%- include('partials/navbar1.ejs') %>
+  </header>
     <style>
     table {
       width: 100%;
@@ -50,7 +51,7 @@
       color: white;
     }
   </style>
-  </header>
+
 </body>
 
   <!-- Admin Action Bar -->
@@ -61,6 +62,7 @@
     <a href="/admin/Recipes" class="btn btn-outline-dark m-1">Manage Recipes</a>
     <a href="/admin/Users" class="btn btn-outline-dark m-1">Manage Users</a>
   </div>
+  <body>
 
 <h2>Manage Users</h2>
 
@@ -70,24 +72,32 @@
       <th>User Name</th>
       <th>Email</th>
       <th>Phone number</th>
-      <th>Password</th>
       <th>Role</th>
-      <th>User Details Update</th>
-      <th>User Delete</th>
+      <th>Update</th>
+      <th>Delete</th>
     </tr>
   </thead>
   <tbody>
     <% users.forEach(r => { %>
       <tr>
-        <td><%= r.user_name %></td>
-        <td><%= r.email %></td>
-        <td><%= r.phone %></td>
-        <td><%= r.password %></td>
-        <td><%= r.role %></td>
-        <td><a href="/admin/Users/update/<%= r.id %>" class="btn btn-update">Update</a></td>
-        <td><a href="/admin/Users/delete/<%= r.id %>" class="btn btn-update">Delete</a></td>
+        <form action="/admin/Users/update/<%= r.user_id %>" method="POST">
+          <td><input type="text" name="username" value="<%= r.user_name %>" required></td>
+          <td><input type="email" name="email" value="<%= r.email %>" required></td>
+          <td><input type="text" name="phone" value="<%= r.phone %>" required></td>
+          <td>
+            <select name="role" required>
+              <option value="admin" <%= r.role === 'admin' ? 'selected' : '' %>>Admin</option>
+              <option value="customer" <%= r.role === 'customer' ? 'selected' : '' %>>Customer</option>
+              <option value="baker" <%= r.role === 'baker' ? 'selected' : '' %>>Baker</option>
+              <option value="manager" <%= r.role === 'manager' ? 'selected' : '' %>>Manager</option>
+            </select>
+          </td>
+          <td><button type="submit" class="btn btn-update">Update</button></td>
+          <td><a href="/admin/Users/delete/<%= r.user_id %>" class="btn btn-delete">Delete</a></td>
+        </form>
       </tr>
     <% }) %>
   </tbody>
 </table>
+</body>
 </html>
