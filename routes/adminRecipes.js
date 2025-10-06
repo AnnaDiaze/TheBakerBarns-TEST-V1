@@ -25,7 +25,22 @@ router.post("/add", isAdmin, (req, res) => {
   );
 });
 
-// update ->"/update/:id", isAdmin,
+// UPDATE
+// Handle recipe update
+router.post("/update/:id", isAdmin, (req, res) => {
+  const recipeId = req.params.id;
+  const { title, description, ingredients, method, image } = req.body;
+  
+  conn.query(
+    'UPDATE recipes SET title = ?, description = ?, ingredients = ?, method = ?, image = ? WHERE id = ?',
+    [title, description, ingredients, method, image, recipeId],
+    (err) => {
+      if (err) throw err;
+      res.redirect('/admin/Recipes');
+    }
+  );
+});
+
 
 // Delete recipe
 router.get("/delete/:id", isAdmin, (req, res) => {

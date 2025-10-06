@@ -82,25 +82,26 @@
       <th>Ingredients</th>
       <th>Method</th>
       <th>Image</th>
-      <!-- <th>Category</th> -->
       <th>Action</th>
     </tr>
   </thead>
   <tbody>
     <% recipes.forEach(r => { %>
       <tr>
-        <td><%= r.title %></td>
-        <td><%= r.description %></td>
-        <td><%= r.ingredients %></td>
-        <td><%= r.method %></td>
-        <!-- <td><%= r.category %></td> -->
-        <td><img src="<%= r.image %>" width="80"></td>
-        <td>
-          <a href="/admin/Recipes/update/<%= r.id %>" class="btn btn-update">Update</a>
-          <a href="/admin/Recipes/delete/<%= r.id %>" class="btn btn-update">Delete</a>
-        </td>
+        <form action="/admin/Recipes/update/<%= r.id %>" method="POST">
+          <td><input type="text" name="title" value="<%= r.title %>" required></td>
+          <td><textarea name="description"><%= r.description %></textarea></td>
+          <td><textarea name="ingredients"><%= r.ingredients %></textarea></td>
+          <td><textarea name="method"><%= r.method %></textarea></td>
+          <td><input type="text" name="image" value="<%= r.image %>"></td>
+          <td>
+            <button type="submit" class="btn btn-update">Update</button>
+            <a href="/admin/Recipes/delete/<%= r.id %>" class="btn btn-delete">Delete</a>
+          </td>
+        </form>
       </tr>
     <% }) %>
   </tbody>
 </table>
+
 </html>
