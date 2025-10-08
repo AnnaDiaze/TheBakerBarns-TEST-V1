@@ -11,9 +11,9 @@ router.get("/", isAdmin, (req, res) => {
   const query = `
     SELECT 
       o.id,
-      COALESCE(u.user_name, o.guest_name) AS customer_name,
-      COALESCE(u.email, o.guest_email) AS email,
-      COALESCE(u.phone, o.guest_phone) AS phone,
+      COALESCE(u.user_name) AS customer_name,
+      COALESCE(u.email) AS email,
+      COALESCE(u.phone) AS phone,
       o.pickup_date,
       o.total_amount,
       o.status
@@ -37,9 +37,9 @@ router.get("/:id", isAdmin, (req, res) => {
   const orderQuery = `
     SELECT 
       o.id,
-      COALESCE(u.user_name, o.guest_name) AS customer_name,
-      COALESCE(u.email, o.guest_email) AS email,
-      COALESCE(u.phone, o.guest_phone) AS phone,
+      COALESCE(u.user_name) AS customer_name,
+      COALESCE(u.email) AS email,
+      COALESCE(u.phone) AS phone,
       o.pickup_date,
       o.total_amount,
       o.status

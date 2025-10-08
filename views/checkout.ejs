@@ -50,30 +50,24 @@
     </header>
   <div class="checkout-container">
     <h2>Checkout</h2>
+
     <form action="/checkout" method="POST">
-      <% if (!user) { %>
-        <label for="guest_name">Full Name</label>
-        <input type="text" name="guest_name" required>
+  <label>Name:</label>
+  <input type="text" name="name" value="<%= user.name %>" required>
 
-        <label for="guest_email">Email</label>
-        <input type="email" name="guest_email" required>
+  <label>Email:</label>
+  <input type="email" name="email" value="<%= user.email %>" required>
 
-        <label for="guest_phone">Phone</label>
-        <input type="text" name="guest_phone" required>
-      <% } else { %>
-        <p><strong>Customer:</strong> <%= user.name %> (<%= user.email %>)</p>
-      <% } %>
+  <label>Phone:</label>
+  <input type="text" name="phone" value="<%= user.phone %>" required>
 
-      <label for="pickup_date">Pickup Date</label>
-      <input type="date" id="pickup_date" name="pickup_date" required 
-      min="<%= (() => { 
-        let d = new Date(); 
-        d.setDate(d.getDate() + 1); 
-        return d.toISOString().split('T')[0]; 
-        })() %>">
+  <label>Pickup Date:</label>
+  <input type="date" name="pickup_date" required>
 
-      <button type="submit" class="btn-submit">Place Order</button>
-    </form>
+  <button type="submit">Place Order</button>
+</form>
+
+    
   </div>
 </body>
 </html>

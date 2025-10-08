@@ -44,10 +44,10 @@ app.use((req, res, next) => {
   next();
 });
 
-// for AJAX
-app.use(express.json()); 
-// for forms
-app.use(express.urlencoded({ extended: true })); 
+// // for AJAX
+// app.use(express.json()); 
+// // for forms
+// app.use(express.urlencoded({ extended: true })); 
 
 
 // ROUTES
@@ -107,14 +107,22 @@ app.use('/', recipesRoutes);
 const productRoutes = require("./routes/products");
 app.use("/products", productRoutes);
 
+// custom_cake page route
+const customCakesRoutes = require('./routes/customCakes');
+app.use('/custom-cakes', customCakesRoutes)
 
+// cart route
+const cartRoutes = require('./routes/cart');
+app.use('/cart', cartRoutes);
 
+// checkout route
+const checkoutRoutes = require('./routes/checkout');
+app.use('/', checkoutRoutes);
 
-
-// Show cart form
-app.get("/cart", (req, res) => {
-  res.render("cart", { cart: req.session.cart || [] });
-});
+// // Show cart form
+// app.get("/cart", (req, res) => {
+//   res.render("cart", { cart: req.session.cart || [] });
+// });
 
 //This will send a POST request to '/register' which will store 
 //the user information in a table.
@@ -198,91 +206,11 @@ app.post('/cart/remove', (req, res) => {
   res.redirect('/cart');
 });
 
-// Show checkout form
-app.get('/checkout', (req, res) => {
-  const cart = req.session.cart || [];
-  if (cart.length === 0) {
-    return res.redirect('/cart'); // no empty checkout
-  }
-  res.render('checkout', { cart, user: req.session.user });
-});
-
-// Handle checkout form submission
-app.post('/checkout', (req, res) => {
-  const cart = req.session.cart || [];
-  if (cart.length === 0) {
-    return res.redirect('/cart');
-  }
-
-  const { guest_name, guest_email, guest_phone, pickup_date } = req.body;
-  // Validation: pickup date must be >= tomorrow
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1);
-
-  const selectedDate = new Date(pickup_date);
-
-  if (selectedDate < tomorrow) {
-    return res.status(400).send("Pickup date must be from tomorrow onwards.");
-    // or render an error view instead of plain text
-  }
-
-   // ... continue inserting into orders + order_items
-  const customer_id = req.session.user ? req.session.user.id : null;
-  const total_amount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
-  const orderData = {
-    customer_id,
-    guest_name: guest_name || null,
-    guest_email: guest_email || null,
-    guest_phone: guest_phone || null,
-    order_date: new Date(),
-    pickup_date,
-    status: 'pending',
-    total_amount
-  };
-
-  conn.query('INSERT INTO orders SET ?', orderData, (err, result) => {
-    if (err) {
-      console.error('Error inserting order:', err);  // log error to server
-      return res.status(500).send('Something went wrong while placing your order. Please try again.');
-    }
-
-    const orderId = result.insertId;
-
-    const orderItems = cart.map(item => [
-      orderId,
-      item.id,
-      null, // custom_cake_id if needed
-      item.quantity,
-      item.price
-    ]);
-
-    conn.query(
-      'INSERT INTO order_items (order_id, product_id, custom_cake_id, quantity, price_each) VALUES ?',
-      [orderItems],
-      (err2) => {
-        if (err2) {
-          console.error('Error inserting order items:', err2);
-          return res.status(500).send('Something went wrong while saving your order items. Please try again.');
-        }
-
-        // Clear cart
-        req.session.cart = [];
-
-        res.render('order-success', { orderId });
-      }
-    );
-  });
-});
-
 // Show all Orders (Admin view)
 app.get('/admin/orders', (req, res) => {
   const sql = `
     SELECT o.*, 
-           COALESCE(u.user_name, o.guest_name) AS customer_name
+           COALESCE(u.user_name) AS customer_name
     FROM orders o
     LEFT JOIN users u ON o.customer_id = u.user_id
     ORDER BY o.created_at DESC
@@ -315,7 +243,7 @@ app.get('/admin/orders/:id', (req, res) => {
 
   // Get order info
   const orderSql = `
-    SELECT o.*, COALESCE(u.user_name, o.guest_name) AS customer_name
+    SELECT o.*, COALESCE(u.user_name) AS customer_name
     FROM orders o
     LEFT JOIN users u ON o.customer_id = u.user_id
     WHERE o.id = ?
@@ -350,6 +278,11 @@ app.get('/logout',(req,res) => {
 	req.session.destroy();
 	res.redirect('/');
 });
+
+// app.use((req, res, next) => {
+//   console.log("404 Not Found:", req.url);
+//   next();
+// });
 
 app.listen(PORT, () => {
   console.log(`Node app is running on port 3000`);
