@@ -49,11 +49,27 @@ router.get("/:id", isAdmin, (req, res) => {
   `;
 
   const itemsQuery = `
-    SELECT oi.quantity, oi.price_each, p.name AS product_name
-    FROM order_items oi
-    JOIN products p ON oi.product_id = p.id
-    WHERE oi.order_id = ?
-  `;
+    SELECT
+    oi.id,
+    oi.quantity,
+    oi.price_each,
+    oi.product_id,
+    oi.custom_cake_order_id,
+    COALESCE(p.name, cco.name_snapshot) AS product_name,
+    -- optional: show chosen options for custom cakes
+    GROUP_CONCAT(
+      CONCAT(co.type, ': ', co.name, ' (+$', FORMAT(co.price_extra, 2), ')')
+      ORDER BY co.type, co.name
+      SEPARATOR '; '
+    ) AS custom_options
+  FROM order_items oi
+  LEFT JOIN products p ON oi.product_id = p.id
+  LEFT JOIN custom_cake_orders cco ON oi.custom_cake_order_id = cco.id
+  LEFT JOIN custom_cake_order_options ccoo ON ccoo.custom_cake_order_id = cco.id
+  LEFT JOIN custom_options co ON co.id = ccoo.option_id
+  WHERE oi.order_id = ?
+  GROUP BY oi.id, oi.quantity, oi.price_each, oi.product_id, oi.custom_cake_order_id, product_name
+`;
 
   conn.query(orderQuery, [orderId], (err, orderResults) => {
     if (err) throw err;

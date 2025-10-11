@@ -55,10 +55,18 @@
     <tbody>
       <% items.forEach(item => { %>
         <tr>
-          <td><%= item.product_name %></td>
+          <td>
+            <%= item.product_name %>
+            <% if (item.custom_cake_order_id) { %>
+              <br><small><em>(Custom Cake)</em></small>
+              <% if (item.custom_options) { %>
+                <br><small><%= item.custom_options %></small>
+              <% } %>
+            <% } %>
+          </td>
           <td><%= item.quantity %></td>
           <td>$<%= (parseFloat(item.price_each) || 0).toFixed(2) %></td>
-          <td>$<%= ((item.quantity || 0) * (parseFloat(item.price_each) || 0)).toFixed(2) %></td> <!--fixed numer error-->
+          <td>$<%= ((item.quantity || 0) * (parseFloat(item.price_each) || 0)).toFixed(2) %></td>
         </tr>
       <% }) %>
     </tbody>
