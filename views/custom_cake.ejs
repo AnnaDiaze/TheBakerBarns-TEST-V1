@@ -1,0 +1,182 @@
+<!-- views/custom_cake.ejs -->
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Customize Cake</title>
+  <%- include('partials/header1.ejs') %>
+  <style>
+    /* Center content horizontally */
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    header h1 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    main {
+      width: 100%;
+      max-width: 600px;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border: 1px solid #ddd;
+      padding: 20px;
+      border-radius: 8px;
+      background-color: #f9f9f9;
+    }
+    .option-group {
+      display: flex;
+      flex-direction: column;
+    }
+    #summary {
+      margin-top: 18px;
+      padding: 12px;
+      border: 1px solid #ddd;
+      display: inline-block;
+      background: #fff;
+      border-radius: 5px;
+    }
+    button {
+      padding: 8px 16px;
+      background-color: #6a3c98;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #582a7c;
+    }
+    h3 {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  
+  <header>
+    <h1>The Baker Barns Bakery</h1>
+    <%- include('partials/navbar1.ejs') %>
+  </header>
+
+  <main>
+    <h3>Customize Your Cake</h3>
+
+    <form id="customCakeForm">
+      <div>
+        <label for="productSelect">Choose base cake</label><br>
+
+        <!-- Replace the select + loops with defensive versions -->
+        <select id="productSelect" name="product_id" required>
+          <% (cakes || []).forEach(c => { %>
+            <option value="<%= c.id %>" data-base="<%= Number(c.price).toFixed(2) %>">
+              <%= c.name %> — $<%= Number(c.price).toFixed(2) %>
+            </option>
+          <% }) %>
+        </select>
+        
+        <% Object.keys(optionsByType || {}).forEach(type => { %>
+          <div class="option-group">
+            <label><%= type %></label>
+            <select name="option_ids" class="option-select" multiple>
+              <% (optionsByType[type] || []).forEach(o => { %>
+                <option value="<%= o.id %>" data-price="<%= Number(o.price_extra).toFixed(2) %>">
+                  <%= o.name %> (+$<%= Number(o.price_extra).toFixed(2) %>)
+                </option>
+              <% }) %>
+            </select>
+          </div>
+        <% }) %>
+      </div>
+      
+
+      <div>
+        <label>Quantity</label>
+        <input type="number" name="quantity" value="1" min="1" />
+      </div>
+
+      <div id="summary">
+        Base: $<span id="summaryBase">0.00</span><br>
+        Add-ons: $<span id="summaryAddons">0.00</span><br>
+        <strong>Total: $<span id="summaryTotal">0.00</span></strong>
+      </div>
+
+      <div>
+        <label>Notes (optional)</label><br>
+        <textarea name="notes" rows="2" cols="40" placeholder="Message on cake, special instructions..."></textarea>
+      </div>
+
+      <div>
+        <button type="submit" id="submitCustomCake">Add to Cart</button>
+      </div>
+    </form>
+  </main>
+
+ <!-- Add JS for AJAX -->
+  <script>
+  function computeTotals() {
+    const baseSel = document.getElementById("productSelect");
+    const base = parseFloat(baseSel.selectedOptions[0]?.dataset.base || "0") || 0;
+
+    const addon = Array.from(document.querySelectorAll(".option-select"))
+      .flatMap(sel => Array.from(sel.selectedOptions))
+      .reduce((sum, opt) => sum + (parseFloat(opt.dataset.price || "0") || 0), 0);
+
+    const qty = parseInt(document.querySelector('input[name="quantity"]').value || "1", 10);
+
+    document.getElementById("summaryBase").textContent = base.toFixed(2);
+    document.getElementById("summaryAddons").textContent = addon.toFixed(2);
+    document.getElementById("summaryTotal").textContent = (base + addon).toFixed(2);
+  }
+
+document.getElementById("productSelect").addEventListener("change", computeTotals);
+document.querySelectorAll(".option-select").forEach(sel => sel.addEventListener("change", computeTotals));
+computeTotals();
+
+document.getElementById("customCakeForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  // collect multi-select option ids
+  const optionIds = Array.from(document.querySelectorAll(".option-select"))
+    .flatMap(sel => Array.from(sel.selectedOptions).map(o => o.value));
+
+  const payload = {
+    product_id: document.getElementById("productSelect").value,
+    quantity: document.querySelector('input[name="quantity"]').value,
+    notes: document.querySelector('textarea[name="notes"]').value,
+    option_ids: optionIds
+  };
+
+  try {
+    const res = await fetch("/custom_cake/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert("🎂 Custom cake added to cart!");
+      // Optional: window.location = "/cart";
+    } else {
+      alert(`⚠️ ${data.error || "Could not add custom cake."}`);
+    }
+  } catch (err) {
+    console.error("Custom cake create failed:", err);
+    alert("🚫 Network/server error.");
+  }
+});
+</script>
+
+
+ </body>
+</html>

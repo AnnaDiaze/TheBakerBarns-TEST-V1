@@ -1,88 +1,113 @@
+// routes/checkout.js
 const express = require('express');
 const router = express.Router();
+const { getCurrentCart, getCartItems } = require("../utils/cartHelper");
 const conn = require('../dbConfig');
 
-// Middleware to ensure login
-function ensureLoggedIn(req, res, next) {
-  if (!req.session.user) return res.render('login-required');
-  next();
+// ✅ Middleware: only logged-in users
+function isLoggedIn(req, res, next) {
+  if (req.session.user) return next();
+  res.redirect("/login-required");
 }
 
-// Show checkout form
-router.get('/checkout', ensureLoggedIn, (req, res) => {
-  const cart = req.session.cart || [];
-  if (cart.length === 0) return res.redirect('/cart');
+// ✅ SHOW CHECKOUT FORM
+router.get('/', isLoggedIn, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const cart = await getCurrentCart(userId);
+    const items = await getCartItems(cart.id);
 
-  const user = req.session.user; // logged-in user info
-  res.render('checkout', { cart, user });
+    // Ensure all prices are numbers
+    const cartItems = items.map(i => ({
+      ...i,
+      price: parseFloat(i.price) || 0,
+      quantity: parseInt(i.quantity) || 1,
+    }));
+
+    res.render('checkout', { cart: cartItems, user: req.session.user });
+  } catch (err) {
+    console.error('Error fetching cart:', err);
+    res.status(500).send('Error fetching cart.');
+  }
 });
 
-// Handle checkout submission
-router.post('/checkout', ensureLoggedIn, (req, res) => {
-  const cart = req.session.cart || [];
-  if (cart.length === 0) return res.redirect('/cart');
+// ✅ HANDLE CHECKOUT SUBMISSION
+router.post('/', isLoggedIn, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const { name, email, phone, pickup_date } = req.body;
 
-  const { pickup_date, name, email, phone } = req.body; // updated info
+    // Validate pickup date (at least tomorrow)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
 
-  // Validate pickup date
-  const today = new Date();
-  today.setHours(0,0,0,0);
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate()+1);
-  if (new Date(pickup_date) < tomorrow) {
-    return res.status(400).send("Pickup date must be from tomorrow onwards.");
-  }
-
-  const userId = req.session.user.id;
-  const total_amount = cart.reduce((sum,item) => sum + item.price*item.quantity, 0);
-
-  // Update user details if changed
-  conn.query(
-    'UPDATE users SET name = ?, email = ?, phone = ? WHERE id = ?',
-    [name, email, phone, userId],
-    (err) => {
-      if(err) console.error('Error updating user info:', err);
-    }
-  );
-
-  const orderData = {
-    customer_id: userId,
-    order_date: new Date(),
-    pickup_date,
-    status: 'pending',
-    total_amount
-  };
-
-  // Insert order
-  conn.query('INSERT INTO orders SET ?', orderData, (err, result) => {
-    if (err) {
-      console.error('Error inserting order:', err);
-      return res.status(500).send('Error placing your order.');
+    if (new Date(pickup_date) < tomorrow) {
+      return res.status(400).send("Pickup date must be from tomorrow onwards.");
     }
 
-    const orderId = result.insertId;
-    const orderItems = cart.map(item => [
+    // ✅ Update user info
+    await conn.promise().query(
+      'UPDATE users SET user_name = ?, email = ?, phone = ? WHERE user_id = ?',
+      [name, email, phone, userId]
+    );
+
+    // ✅ Get current cart + items
+    const cart = await getCurrentCart(userId);
+    const items = await getCartItems(cart.id);
+    if (!items.length) return res.redirect('/cart');
+
+    // ✅ Normalize item data
+    const cartItems = items.map(i => ({
+      ...i,
+      price: parseFloat(i.price) || 0,
+      quantity: parseInt(i.quantity) || 1,
+    }));
+
+    // ✅ Calculate total
+    const total_amount = cartItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
+
+    // ✅ Create order
+    const [orderResult] = await conn.promise().query(
+      'INSERT INTO orders (customer_id, order_date, pickup_date, status, total_amount, created_at, updated_at) VALUES (?, NOW(), ?, "pending", ?, NOW(), NOW())',
+      [userId, pickup_date, total_amount]
+    );
+
+    const orderId = orderResult.insertId;
+
+    // ✅ Prepare order item data (match DB table columns exactly)
+    const orderItems = cartItems.map(i => [
       orderId,
-      item.id,
-      item.custom_cake_orders_id || null,
-      item.quantity,
-      item.price
+      i.product_id || null,
+      i.custom_cake_order_id || null,
+      i.quantity,
+      parseFloat(i.price) || 0, // price_each
+      new Date(), // created_at
+      new Date()  // updated_at
     ]);
 
-    conn.query(
-      'INSERT INTO order_items (order_id, product_id, custom_cake_orders_id, quantity, price_each) VALUES ?',
-      [orderItems],
-      (err2) => {
-        if (err2) {
-          console.error('Error inserting order items:', err2);
-          return res.status(500).send('Error saving order items.');
-        }
+    // ✅ Insert order details (matches your DB table name)
+    if (orderItems.length > 0) {
+      await conn.promise().query(
+        `INSERT INTO order_items 
+          (order_id, product_id, custom_cake_order_id, quantity, price_each, created_at, updated_at)
+         VALUES ?`,
+        [orderItems]
+      );
+    }
 
-        req.session.cart = [];
-        res.render('order-success', { orderId });
-      }
-    );
-  });
+    // ✅ Mark cart as ordered
+    await conn.promise().query('UPDATE carts SET status = "ordered" WHERE id = ?', [cart.id]);
+
+    // ✅ Clear cart items (optional)
+    await conn.promise().query('DELETE FROM cart_items WHERE cart_id = ?', [cart.id]);
+
+    res.render('order-success', { orderId });
+  } catch (err) {
+    console.error("❌ Error during checkout:", err);
+    res.status(500).send("Error saving order items.");
+  }
 });
 
 module.exports = router;

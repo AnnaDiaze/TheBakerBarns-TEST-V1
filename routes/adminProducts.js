@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const conn = require("../dbConfig");
-const isAdmin = require("../middleware/auth");
+const {isAdmin} = require("../middleware/auth");
 
 // Show all active products
 router.get("/", isAdmin, (req, res) => {

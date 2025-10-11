@@ -40,7 +40,7 @@
   <p><strong>Phone:</strong> <%= order.phone %></p>
   <p><strong>Pickup Date:</strong> <%= order.pickup_date.toISOString().split('T')[0] %></p>
   <p><strong>Status:</strong> <%= order.status %></p>
-  <p><strong>Total:</strong> $<%= order.total_amount.toFixed(2) %></p>
+  <p><strong>Total:</strong>$<%= (parseFloat(order.total_amount) || 0).toFixed(2) %></p> <!--fixed numder error-->
 
   <h2>Items</h2>
   <table>
@@ -57,8 +57,8 @@
         <tr>
           <td><%= item.product_name %></td>
           <td><%= item.quantity %></td>
-          <td>$<%= item.price_each.toFixed(2) %></td>
-          <td>$<%= (item.quantity * item.price_each).toFixed(2) %></td>
+          <td>$<%= (parseFloat(item.price_each) || 0).toFixed(2) %></td>
+          <td>$<%= ((item.quantity || 0) * (parseFloat(item.price_each) || 0)).toFixed(2) %></td> <!--fixed numer error-->
         </tr>
       <% }) %>
     </tbody>

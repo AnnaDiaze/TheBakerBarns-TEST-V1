@@ -86,7 +86,7 @@
           <td><%= order.email %></td>
           <td><%= order.phone %></td>
           <td><%= order.pickup_date.toISOString().split('T')[0] %></td>
-          <td>$<%= order.total_amount.toFixed(2) %></td>
+          <td>$<%= parseFloat(order.total_amount || 0).toFixed(2) %></td>
           <td><%= order.status %></td>
           <td>
             <form action="/admin/orders/update/<%= order.id %>" method="POST" style="display:inline;">

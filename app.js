@@ -44,28 +44,15 @@ app.use((req, res, next) => {
   next();
 });
 
-// // for AJAX
-// app.use(express.json()); 
-// // for forms
-// app.use(express.urlencoded({ extended: true })); 
-
 
 // ROUTES
 app.get("/", (req, res) => {
   res.render("home",);
 });
 
-app.get('/custom', function (req, res) {
-    res.render("custom");
-    });
-
-app.get('/classes', function (req, res) {
-    res.render("classes");
-    });
-
-// app.get('/blog', function (req, res) {
-//     res.render("blog");
-//     });
+// app.get('/', (req, res) => {
+//   res.render('custom_cake', { user: req.session.user });
+// });
 
 app.get('/aboutus', function (req, res) {
     res.render('aboutus', { success: false });
@@ -78,6 +65,36 @@ app.get('/login',function(req,res){
 app.get('/register',function(req,res){
     res.render("register",{title:'Register'});
 });
+
+app.get('/login-required', (req, res) => {
+  res.render('login-required'); 
+});
+
+
+// About us page -> contact_messages route
+const contactRouter = require('./routes/contact');
+app.use('/contact', contactRouter);
+
+// Recipes page route
+const recipesRoutes = require('./routes/recipes');
+app.use('/', recipesRoutes);
+
+// products page (our menu) route
+const productRoutes = require("./routes/products");
+app.use("/products", productRoutes);
+
+// custom_cake page route
+const customCakesRoutes = require('./routes/customCakes');
+app.use('/custom_cake', customCakesRoutes)
+
+// cart route
+const cartRoutes = require('./routes/cart');
+app.use('/cart', cartRoutes);
+
+// checkout route
+const checkoutRoutes = require('./routes/checkout');
+app.use('/checkout', checkoutRoutes);
+
 
 // AdminOnly
 const adminOnlyRouter = require('./routes/adminOnly');
@@ -95,43 +112,22 @@ app.use('/admin/Recipes', adminRecipesRoutes);
 const adminUsersRoutes = require('./routes/adminUsers');
 app.use('/admin/Users', adminUsersRoutes);
 
-// About us page -> contact_messages route
-const contactRouter = require('./routes/contact');
-app.use('/contact', contactRouter);
+// adminproducts page
+const adminProducts = require("./routes/adminProducts");
+app.use("/admin/products", adminProducts);
+// adminOrders page
+const adminOrders = require("./routes/adminOrders");
+app.use("/admin/orders", adminOrders)                                                                                                                                                                                                                      
 
-// Recipes page route
-const recipesRoutes = require('./routes/recipes');
-app.use('/', recipesRoutes);
 
-// products page (our menu) route
-const productRoutes = require("./routes/products");
-app.use("/products", productRoutes);
-
-// custom_cake page route
-const customCakesRoutes = require('./routes/customCakes');
-app.use('/custom-cakes', customCakesRoutes)
-
-// cart route
-const cartRoutes = require('./routes/cart');
-app.use('/cart', cartRoutes);
-
-// checkout route
-const checkoutRoutes = require('./routes/checkout');
-app.use('/', checkoutRoutes);
-
-// // Show cart form
-// app.get("/cart", (req, res) => {
-//   res.render("cart", { cart: req.session.cart || [] });
-// });
-
-//This will send a POST request to '/register' which will store 
-//the user information in a table.
+//This will send a POST request to '/register' which will store the user information in a table.
 app.post('/register', function(req, res) {
 	let username = req.body.username;
 	let email = req.body.email;
+  let phone = req.body.phone;
 	let password = req.body.password;
 	if (username && password) {
-		var sql = `INSERT INTO users (user_name, email, password) VALUES ("${username}", "${email}", "${password}")`;
+		var sql = `INSERT INTO users (user_name, email, phone, password) VALUES ("${username}", "${email}", "${phone}", "${password}")`;
 		conn.query(sql, function(err, result) {
 			if (err) throw err;
 			console.log('record inserted');
@@ -159,6 +155,7 @@ app.post('/auth', function(req, res) {
                     id: results[0].user_id,
                     username: results[0].user_name,
                     email: results[0].email,
+                    phone: results[0].phone,
                     role: results[0].role // must be "admin" for admin user
                 };
 
@@ -179,32 +176,7 @@ app.post('/auth', function(req, res) {
     }
 });
 
-// adminproducts page
-const adminProducts = require("./routes/adminProducts");
-app.use("/admin/products", adminProducts);
-// adminOrders page
-const adminOrders = require("./routes/adminOrders");
-app.use("/admin/orders", adminOrders)
 
-// CART AND CHECKOUT
-// Update quantity in the cart
-app.post('/cart/update', (req, res) => {
-  const { product_id, quantity } = req.body;
-  if (req.session.cart) {
-    const item = req.session.cart.find(p => p.id == product_id);
-    if (item) item.quantity = parseInt(quantity);
-  }
-  res.redirect('/cart');
-});
-
-// Remove item from cart
-app.post('/cart/remove', (req, res) => {
-  const { product_id } = req.body;
-  if (req.session.cart) {
-    req.session.cart = req.session.cart.filter(p => p.id != product_id);
-  }
-  res.redirect('/cart');
-});
 
 // Show all Orders (Admin view)
 app.get('/admin/orders', (req, res) => {
@@ -249,11 +221,14 @@ app.get('/admin/orders/:id', (req, res) => {
     WHERE o.id = ?
   `;
 
-  // Get order items
+  // Get order items (PRODUCTS + CUSTOM_CAKES)
   const itemsSql = `
-    SELECT oi.*, p.name AS product_name
+    SELECT
+      oi.*,
+      COALESCE(p.name, cco.name_snapshot) AS product_name
     FROM order_items oi
-    JOIN products p ON oi.product_id = p.id
+    LEFT JOIN products p ON oi.product_id = p.id
+    LEFT JOIN custom_cake_orders cco ON oi.custom_cake_order_id = cco.id
     WHERE oi.order_id = ?
   `;
 
@@ -278,11 +253,6 @@ app.get('/logout',(req,res) => {
 	req.session.destroy();
 	res.redirect('/');
 });
-
-// app.use((req, res, next) => {
-//   console.log("404 Not Found:", req.url);
-//   next();
-// });
 
 app.listen(PORT, () => {
   console.log(`Node app is running on port 3000`);

@@ -7,7 +7,6 @@
     <h1>The Baker Barns Bakery</h1>
     <%- include('partials/navbar1.ejs') %>
   </header>
-</body>
 
   <!-- products side-bar -->
   <aside class="sidebar">
@@ -16,9 +15,10 @@
       <% categories.forEach(cat => { %>
         <li>
           <a 
-          href="/products?category=<%= cat.id %>" 
-          class="<%= currentCategory == cat.id ? 'active' : '' %>">
-          <%= cat.name %></a>
+            href="/products?category=<%= cat.id %>" 
+            class="<%= currentCategory == cat.id ? 'active' : '' %>">
+            <%= cat.name %>
+          </a>
         </li>
       <% }) %>
     </ul>
@@ -32,10 +32,10 @@
       <div class="sort-select">
         <label for="sort">Sort by:</label>
         <select id="sort" name="sort" onchange="location = '?sort=' + this.value;">
-          <option value="default">Default</option>
-          <option value="name">Name (A–Z)</option>
-          <option value="price_low">Price (Low → High)</option>
-          <option value="price_high">Price (High → Low)</option>
+          <option value="default" <%= sort === 'default' ? 'selected' : '' %>>Default</option>
+          <option value="name" <%= sort === 'name' ? 'selected' : '' %>>Name (A–Z)</option>
+          <option value="price_low" <%= sort === 'price_low' ? 'selected' : '' %>>Price (Low → High)</option>
+          <option value="price_high" <%= sort === 'price_high' ? 'selected' : '' %>>Price (High → Low)</option>
         </select>
       </div>
     </div>
@@ -46,7 +46,7 @@
         <div class="product-card">
           <img src="<%= product.image_url %>" alt="<%= product.name %>">
           <h3><%= product.name %></h3>
-          <p class="price">$<%= product.price.toFixed(2) %></p>
+          <p class="price">$<%= (parseFloat(product.price) || 0).toFixed(2) %></p>
           
           <form class="cart-form" data-product-id="<%= product.id %>">
             <input type="number" name="quantity" value="1" min="1">
@@ -56,12 +56,10 @@
         </div>
       <% }) %>
     </div>
-  </main>
 </div>
+  </main>
 
-</html>
-
-<!-- Add JS for AJAX -->
+  <!-- Add JS for AJAX -->
 <script>
 document.querySelectorAll('.cart-form').forEach(form => {
   form.addEventListener('submit', async (e) => {
@@ -93,3 +91,7 @@ document.querySelectorAll('.cart-form').forEach(form => {
   });
 });
 </script>
+
+
+</body>
+</html>
