@@ -3,6 +3,9 @@ const path = require("path");
 const app = express();
 const PORT = 3000;
 
+const bcrypt = require('bcrypt'); //password encrypt
+const SALT_ROUNDS = 10; // default
+
 //This line contains the configuration to connect the database.
 var conn = require('./dbConfig');
 
@@ -129,49 +132,58 @@ app.use("/admin/orders", adminOrders)
 
 
 //Register new user
-app.post('/register', function(req, res) {
+app.post('/register', async function(req, res) {
   const { username, email, phone, password } = req.body;
 
-  // Simple form validation
   if (!username || !email || !password) {
     req.session.registerError = "Please fill in all required fields.";
     req.session.registerForm = { username, email, phone };
     return res.redirect('/register');
   }
 
-  // Check if email already exists
-  conn.query('SELECT * FROM users WHERE email = ?', [email], function(err, results) {
-    if (err) throw err;
-
-    if (results.length > 0) {
+  try {
+    // Email uniqueness
+    const [existing] = await conn.promise().query(
+      'SELECT user_id FROM users WHERE email = ?',
+      [email]
+    );
+    if (existing.length > 0) {
       req.session.registerError = "Email already registered. Please login instead.";
       req.session.registerForm = { username, email, phone };
       return res.redirect('/register');
     }
 
-    // Insert new user
-    const sql = 'INSERT INTO users (user_name, email, phone, password) VALUES (?, ?, ?, ?)';
-    conn.query(sql, [username, email, phone, password], function(err, result) {
-      if (err) throw err;
-      console.log('✅ New user registered:', username);
+    // Hash password
+    const hashed = await bcrypt.hash(password, SALT_ROUNDS);
 
-      // Optional: auto-login after registration
-      req.session.user = {
-        id: result.insertId,
-        username,
-        email,
-        phone,
-        role: "customer"
-      };
+    // Insert
+    const [result] = await conn.promise().query(
+      'INSERT INTO users (user_name, email, phone, password) VALUES (?, ?, ?, ?)',
+      [username, email, phone, hashed]
+    );
 
-      res.redirect('/');
-    });
-  });
+    // (Optional) auto-login
+    req.session.user = {
+      id: result.insertId,
+      username,
+      email,
+      phone,
+      role: "customer"
+    };
+
+    res.redirect('/');
+  } catch (err) {
+    console.error('Register error:', err);
+    req.session.registerError = "Something went wrong. Please try again.";
+    req.session.registerForm = { username, email, phone };
+    res.redirect('/register');
+  }
 });
 
 
+
 //NEW /auth route
-app.post('/auth', function(req, res) {
+app.post('/auth', async function(req, res) {
   const email = req.body.email || '';
   const password = req.body.password || '';
 
@@ -181,34 +193,46 @@ app.post('/auth', function(req, res) {
     return res.redirect('/login');
   }
 
-  conn.query(
-    'SELECT * FROM users WHERE email = ? AND password = ?',
-    [email, password],
-    function(error, results) {
-      if (error) throw error;
+  try {
+    const [rows] = await conn.promise().query(
+      'SELECT * FROM users WHERE email = ? LIMIT 1',
+      [email]
+    );
 
-      if (results.length > 0) {
-        req.session.user = {
-          id: results[0].user_id,
-          username: results[0].user_name,
-          email: results[0].email,
-          phone: results[0].phone,
-          role: results[0].role
-        };
-        // (optional) clear any stale error
-        req.session.authError = null;
-        req.session.authForm = null;
+    const user = rows[0];
+    // Use the same generic error to avoid leaking which field failed
+    const fail = () => {
+      req.session.authError = 'Incorrect Email and/or Password!';
+      req.session.authForm = { email };
+      return res.redirect('/login');
+    };
 
-        if (results[0].role === 'admin') return res.redirect('/adminOnly');
-        return res.redirect('/');
-      } else {
-        req.session.authError = 'Incorrect Email and/or Password!';
-        req.session.authForm = { email }; // prefill email field
-        return res.redirect('/login');
-      }
-    }
-  );
+    if (!user) return fail();
+
+    const ok = await bcrypt.compare(password, user.password || '');
+    if (!ok) return fail();
+
+    req.session.user = {
+      id: user.user_id,
+      username: user.user_name,
+      email: user.email,
+      phone: user.phone,
+      role: user.role
+    };
+
+    // Clear stale messages
+    req.session.authError = null;
+    req.session.authForm = null;
+
+    return user.role === 'admin' ? res.redirect('/adminOnly') : res.redirect('/');
+  } catch (err) {
+    console.error('Auth error:', err);
+    req.session.authError = 'Something went wrong. Please try again.';
+    req.session.authForm = { email };
+    return res.redirect('/login');
+  }
 });
+
 
 
 
