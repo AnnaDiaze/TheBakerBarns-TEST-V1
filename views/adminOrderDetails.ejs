@@ -3,31 +3,6 @@
 <head>
     <%- include('partials/header1.ejs') %>
   <title>Order <%= order.id %> Details</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    h1 { margin-bottom: 10px; }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ccc;
-      text-align: center;
-    }
-    th { background: #f4f4f4; }
-    .back-link {
-      margin-top: 20px;
-      display: inline-block;
-      padding: 8px 14px;
-      background: #4CAF50;
-      color: white;
-      text-decoration: none;
-      border-radius: 4px;
-    }
-    .back-link:hover { background: #45a049; }
-  </style>
 </head>
 <body>
     <header>
@@ -72,6 +47,11 @@
     </tbody>
   </table>
 
-  <a href="/admin/orders" class="back-link">← Back to Orders</a>
+  <!-- <a href="/admin/orders" class="back-link" >← Back to Orders</a> -->
+  <a href="/admin/orders" class="btn btn-primary">← Back to Orders</a>
+
+  <footer>
+    <p>&copy; 2025 The Baker Barns Bakery</p>
+  </footer>
 </body>
 </html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <%- include('partials/header1.ejs') %>
+</head>
+
+<body>
+  <header>
+        <h1>The Baker Barns Bakery</h1>
+        <%- include('partials/navbar1.ejs') %>
+    </header>
+    <title>Checkout</title>
+
+  <h2>Your Cart</h2>
+  <table border="1">
+    <tr>
+      <th>Name</th>
+      <th>Qty</th>
+      <th>Price</th>
+      <th>Subtotal</th>
+    </tr>
+    <% let total = 0; cart.forEach(item => { %>
+      <tr>
+        <td><%= item.name %></td>
+        <td><%= item.quantity %></td>
+        <td>$<%= (parseFloat(item.price) || 0).toFixed(2) %></td>
+        <td>$<%= ((parseFloat(item.price) || 0) * item.quantity).toFixed(2) %></td>
+      </tr>
+      <% total += item.price * item.quantity; }) %>
+    <tr>
+      <td colspan="3"><strong>Total</strong></td>
+      <td><strong>$<%= total.toFixed(2) %></strong></td>
+    </tr>
+  </table>
+
+  <h2>Pickup Details</h2>
+  <form method="POST" action="/checkout">
+    <label>Name: <input type="text" name="name" value="<%= user.username|| '' %>" required></label><br>
+    <label>Email: <input type="email" name="email" value="<%= user.email || '' %>" required></label><br>
+    <label>Phone: <input type="text" name="phone" value="<%= user.phone || '' %>"></label><br>
+    <label>Pickup Date: <input type="date" name="pickup_date" required></label><br>
+    <button type="submit">Place Order</button>
+  </form>
+
+  <footer>
+    <p>&copy; 2025 The Baker Barns Bakery</p>
+  </footer>
+</body>
+</html>

@@ -50,21 +50,29 @@ app.get("/", (req, res) => {
   res.render("home",);
 });
 
-// app.get('/', (req, res) => {
-//   res.render('custom_cake', { user: req.session.user });
-// });
-
 app.get('/aboutus', function (req, res) {
     res.render('aboutus', { success: false });
     });
 
-app.get('/login',function(req,res){
-    res.render("login");
+app.get('/login', (req, res) => {
+  const error = req.session.authError || null;
+  const form  = req.session.authForm || {};
+  // clear after reading
+  req.session.authError = null;
+  req.session.authForm = null;
+
+  res.render('login', { error, form });
 });
 
-app.get('/register',function(req,res){
-    res.render("register",{title:'Register'});
+app.get('/register', (req, res) => {
+  const error = req.session.registerError || null;
+  const form = req.session.registerForm || {};
+  req.session.registerError = null;
+  req.session.registerForm = null;
+
+  res.render('register', { error, form });
 });
+
 
 app.get('/login-required', (req, res) => {
   res.render('login-required'); 
@@ -120,60 +128,86 @@ const adminOrders = require("./routes/adminOrders");
 app.use("/admin/orders", adminOrders)                                                                                                                                                                                                                      
 
 
-//This will send a POST request to '/register' which will store the user information in a table.
+//Register new user
 app.post('/register', function(req, res) {
-	let username = req.body.username;
-	let email = req.body.email;
-  let phone = req.body.phone;
-	let password = req.body.password;
-	if (username && password) {
-		var sql = `INSERT INTO users (user_name, email, phone, password) VALUES ("${username}", "${email}", "${phone}", "${password}")`;
-		conn.query(sql, function(err, result) {
-			if (err) throw err;
-			console.log('record inserted');
-			res.render('login');
-		})
-	}
-	else {
-		console.log("Error");
-	}
+  const { username, email, phone, password } = req.body;
+
+  // Simple form validation
+  if (!username || !email || !password) {
+    req.session.registerError = "Please fill in all required fields.";
+    req.session.registerForm = { username, email, phone };
+    return res.redirect('/register');
+  }
+
+  // Check if email already exists
+  conn.query('SELECT * FROM users WHERE email = ?', [email], function(err, results) {
+    if (err) throw err;
+
+    if (results.length > 0) {
+      req.session.registerError = "Email already registered. Please login instead.";
+      req.session.registerForm = { username, email, phone };
+      return res.redirect('/register');
+    }
+
+    // Insert new user
+    const sql = 'INSERT INTO users (user_name, email, phone, password) VALUES (?, ?, ?, ?)';
+    conn.query(sql, [username, email, phone, password], function(err, result) {
+      if (err) throw err;
+      console.log('✅ New user registered:', username);
+
+      // Optional: auto-login after registration
+      req.session.user = {
+        id: result.insertId,
+        username,
+        email,
+        phone,
+        role: "customer"
+      };
+
+      res.redirect('/');
+    });
+  });
 });
+
 
 //NEW /auth route
 app.post('/auth', function(req, res) {
-    let email = req.body.email;
-    let password = req.body.password;
+  const email = req.body.email || '';
+  const password = req.body.password || '';
 
-    if (email && password) {
-        conn.query('SELECT * FROM users WHERE email = ? AND password = ?', [email, password], 
-        function(error, results) {
-            if (error) throw error;
+  if (!email || !password) {
+    req.session.authError = 'Please enter Email and Password!';
+    req.session.authForm = { email };
+    return res.redirect('/login');
+  }
 
-            if (results.length > 0) {
-                // ✅ Set session user object
-                req.session.user = {
-                    id: results[0].user_id,
-                    username: results[0].user_name,
-                    email: results[0].email,
-                    phone: results[0].phone,
-                    role: results[0].role // must be "admin" for admin user
-                };
+  conn.query(
+    'SELECT * FROM users WHERE email = ? AND password = ?',
+    [email, password],
+    function(error, results) {
+      if (error) throw error;
 
-                console.log("User logged in:", req.session.user);
+      if (results.length > 0) {
+        req.session.user = {
+          id: results[0].user_id,
+          username: results[0].user_name,
+          email: results[0].email,
+          phone: results[0].phone,
+          role: results[0].role
+        };
+        // (optional) clear any stale error
+        req.session.authError = null;
+        req.session.authForm = null;
 
-                // Redirect based on role
-                if (results[0].role === "admin") {
-                    res.redirect("/adminOnly"); // admin goes to AdminOnly page
-                } else {
-                    res.redirect("/"); // regular user goes to home page
-                }
-            } else {
-                res.send('Incorrect Email and/or Password!');
-            }
-        });
-    } else {
-        res.send('Please enter Email and Password!');
+        if (results[0].role === 'admin') return res.redirect('/adminOnly');
+        return res.redirect('/');
+      } else {
+        req.session.authError = 'Incorrect Email and/or Password!';
+        req.session.authForm = { email }; // prefill email field
+        return res.redirect('/login');
+      }
     }
+  );
 });
 
 

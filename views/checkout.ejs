@@ -1,40 +1,107 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <%- include('partials/header1.ejs') %>
   <title>Checkout</title>
 </head>
 <body>
-  <h1>Checkout</h1>
+  <header>
+    <h1>The Baker Barns Bakery</h1>
+    <%- include('partials/navbar1.ejs') %>
+  </header>
 
-  <h2>Your Cart</h2>
-  <table border="1">
-    <tr>
-      <th>Name</th>
-      <th>Qty</th>
-      <th>Price</th>
-      <th>Subtotal</th>
-    </tr>
-    <% let total = 0; cart.forEach(item => { %>
-      <tr>
-        <td><%= item.name %></td>
-        <td><%= item.quantity %></td>
-        <td>$<%= (parseFloat(item.price) || 0).toFixed(2) %></td>
-        <td>$<%= ((parseFloat(item.price) || 0) * item.quantity).toFixed(2) %></td>
-      </tr>
-      <% total += item.price * item.quantity; }) %>
-    <tr>
-      <td colspan="3"><strong>Total</strong></td>
-      <td><strong>$<%= total.toFixed(2) %></strong></td>
-    </tr>
-  </table>
+  <main>
+    <div class="cart-container">
+      <h2>Your Cart</h2>
 
-  <h2>Pickup Details</h2>
-  <form method="POST" action="/checkout">
-    <label>Name: <input type="text" name="name" value="<%= user.username|| '' %>" required></label><br>
-    <label>Email: <input type="email" name="email" value="<%= user.email || '' %>" required></label><br>
-    <label>Phone: <input type="text" name="phone" value="<%= user.phone || '' %>"></label><br>
-    <label>Pickup Date: <input type="date" name="pickup_date" required></label><br>
-    <button type="submit">Place Order</button>
-  </form>
+      <% 
+        const items = Array.isArray(cart) ? cart : [];
+        const total = items.reduce((s,i)=> s + Number(i.price || 0) * Number(i.quantity || 0), 0);
+      %>
+
+      <% if (items.length) { %>
+        <table class="cart-table cart-table--outlined">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Qty</th>
+              <th>Price</th>
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% items.forEach((item) => { 
+                 const name  = item.name || item.product_name || 'Item';
+                 const qty   = Number(item.quantity || 0);
+                 const price = Number(item.price || 0);
+                 const sub   = price * qty;
+            %>
+              <tr>
+                <td><%= name %></td>
+                <td><%= qty %></td>
+                <td>$<%= price.toFixed(2) %></td>
+                <td>$<%= sub.toFixed(2) %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" class="text-right"><strong>Total</strong></td>
+              <td><strong>$<%= total.toFixed(2) %></strong></td>
+            </tr>
+          </tfoot>
+        </table>
+      <% } else { %>
+        <p>Your cart is empty.</p>
+        <a href="/products" class="btn btn-primary">Browse Products</a>
+      <% } %>
+
+      <h2>Pickup Details</h2>
+      <form method="POST" action="/checkout" style="display:grid; gap:12px; max-width:560px;">
+        <label>
+          Name:
+          <input type="text" name="name" 
+                 value="<%= (user && (user.user_name || user.username || user.name)) || '' %>" required>
+        </label>
+
+        <label>
+          Email:
+          <input type="email" name="email" value="<%= (user && user.email) || '' %>" required>
+        </label>
+
+        <label>
+          Phone:
+          <input type="text" name="phone" value="<%= (user && user.phone) || '' %>">
+        </label>
+
+        <label>
+          Pickup Date:
+          <input id="pickup_date" type="date" name="pickup_date" required>
+        </label>
+
+        <div style="display:flex; gap:10px; justify-content:flex-end;">
+          <a href="/cart" class="btn btn-accent">Back to Cart</a>
+          <button type="submit" class="btn btn-primary">Place Order</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 The Baker Barns Bakery</p>
+  </footer>
+
+  <script>
+    // Min date = tomorrow (client-side helper; server already validates)
+    (function () {
+      const d = new Date(); d.setDate(d.getDate() + 1);
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      const min = `${yyyy}-${mm}-${dd}`;
+      const el = document.getElementById('pickup_date');
+      if (el) el.min = min;
+    })();
+  </script>
 </body>
 </html>

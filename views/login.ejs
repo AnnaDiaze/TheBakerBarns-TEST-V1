@@ -1,25 +1,61 @@
-<html>
-    <head>
-        <%- include('partials/header1.ejs') %>
-    </head>
-	<body>
-		 <header>
-			<h1>The Baker Barns Bakery</h1>
-			<%- include('partials/navbar1.ejs') %>
-		</header>
-		<div class="login">
-			<h1>Login</h1>
-			<br>
-			<form action="/auth" method="post">
-				<label for="email">Email:</label>
-				<input type="text" name="email" placeholder="Email" id="email" required>
-				<br><br>
-				<label for="password">Password:</label>
-				<input type="password" name="password" placeholder="Password" id="password" required>
-				<br><br>
-				<input type="submit" value="Login">
-			</form>
-			<a href="/register">Register</a>
-		</div>
-	</body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('partials/header1.ejs') %>
+  <title>Login</title>
+  <style>
+    .alert-error{
+      background:#fde8ea;
+      color:#a61b2b;
+      border:1px solid #f5c2c7;
+      padding:12px 14px;
+      border-radius:8px;
+      margin:10px auto 16px;
+      max-width: 420px;
+      text-align: center;
+      font-weight: 600;
+    }
+    .login-box{
+      background:#fff; padding:24px; border-radius:12px;
+      box-shadow:0 4px 12px rgba(0,0,0,.08);
+      max-width:420px; margin:30px auto;
+    }
+    .login-box h2{ margin-top:0; text-align:center; color:#d2691e; }
+    .login-box label{ display:block; margin:8px 0 4px; }
+    .login-box input{ width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; }
+    .login-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:12px; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>The Baker Barns Bakery</h1>
+  <%- include('partials/navbar1.ejs') %>
+</header>
+
+<main>
+  <% if (typeof error !== 'undefined' && error) { %>
+    <div class="alert-error"><%= error %></div>
+  <% } %>
+
+  <div class="login-box">
+    <h2>Login</h2>
+    <form method="POST" action="/auth">
+      <label>Email</label>
+      <input type="email" name="email" value="<%= (form && form.email) || '' %>" required>
+
+      <label>Password</label>
+      <input type="password" name="password" required>
+
+      <div class="login-actions">
+        <a href="/register" class="btn btn-accent">Register</a>
+        <button type="submit" class="btn btn-primary">Login</button>
+      </div>
+    </form>
+  </div>
+</main>
+
+<footer>
+  <p>&copy; 2025 The Baker Barns Bakery</p>
+</footer>
+</body>
 </html>

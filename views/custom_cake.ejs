@@ -2,65 +2,8 @@
 <!doctype html>
 <html>
 <head>
-  <meta charset="utf-8">
   <title>Customize Cake</title>
   <%- include('partials/header1.ejs') %>
-  <style>
-    /* Center content horizontally */
-    body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-    header h1 {
-      text-align: center;
-      margin-bottom: 10px;
-    }
-    main {
-      width: 100%;
-      max-width: 600px;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      border: 1px solid #ddd;
-      padding: 20px;
-      border-radius: 8px;
-      background-color: #f9f9f9;
-    }
-    .option-group {
-      display: flex;
-      flex-direction: column;
-    }
-    #summary {
-      margin-top: 18px;
-      padding: 12px;
-      border: 1px solid #ddd;
-      display: inline-block;
-      background: #fff;
-      border-radius: 5px;
-    }
-    button {
-      padding: 8px 16px;
-      background-color: #6a3c98;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #582a7c;
-    }
-    h3 {
-      text-align: center;
-    }
-  </style>
 </head>
 <body>
   
@@ -72,7 +15,7 @@
   <main>
     <h3>Customize Your Cake</h3>
 
-    <form id="customCakeForm">
+    <form id="customCakeForm" class="custom-form">
       <div>
         <label for="productSelect">Choose base cake</label><br>
 
@@ -105,7 +48,7 @@
         <input type="number" name="quantity" value="1" min="1" />
       </div>
 
-      <div id="summary">
+      <div id="summary" class="summary-box">
         Base: $<span id="summaryBase">0.00</span><br>
         Add-ons: $<span id="summaryAddons">0.00</span><br>
         <strong>Total: $<span id="summaryTotal">0.00</span></strong>
@@ -117,27 +60,28 @@
       </div>
 
       <div>
-        <button type="submit" id="submitCustomCake">Add to Cart</button>
+        <button type="submit" id="submitCustomCake" class="btn btn-primary">Add to Cart</button>
       </div>
     </form>
   </main>
 
  <!-- Add JS for AJAX -->
-  <script>
-  function computeTotals() {
-    const baseSel = document.getElementById("productSelect");
-    const base = parseFloat(baseSel.selectedOptions[0]?.dataset.base || "0") || 0;
+  <!-- Add JS for AJAX -->
+<script>
+function computeTotals() {
+  const baseSel = document.getElementById("productSelect");
+  const base = parseFloat(baseSel.selectedOptions[0]?.dataset.base || "0") || 0;
 
-    const addon = Array.from(document.querySelectorAll(".option-select"))
-      .flatMap(sel => Array.from(sel.selectedOptions))
-      .reduce((sum, opt) => sum + (parseFloat(opt.dataset.price || "0") || 0), 0);
+  const addon = Array.from(document.querySelectorAll(".option-select"))
+    .flatMap(sel => Array.from(sel.selectedOptions))
+    .reduce((sum, opt) => sum + (parseFloat(opt.dataset.price || "0") || 0), 0);
 
-    const qty = parseInt(document.querySelector('input[name="quantity"]').value || "1", 10);
+  const qty = parseInt(document.querySelector('input[name="quantity"]').value || "1", 10);
 
-    document.getElementById("summaryBase").textContent = base.toFixed(2);
-    document.getElementById("summaryAddons").textContent = addon.toFixed(2);
-    document.getElementById("summaryTotal").textContent = (base + addon).toFixed(2);
-  }
+  document.getElementById("summaryBase").textContent = base.toFixed(2);
+  document.getElementById("summaryAddons").textContent = addon.toFixed(2);
+  document.getElementById("summaryTotal").textContent = (base + addon).toFixed(2);
+}
 
 document.getElementById("productSelect").addEventListener("change", computeTotals);
 document.querySelectorAll(".option-select").forEach(sel => sel.addEventListener("change", computeTotals));
@@ -146,7 +90,6 @@ computeTotals();
 document.getElementById("customCakeForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  // collect multi-select option ids
   const optionIds = Array.from(document.querySelectorAll(".option-select"))
     .flatMap(sel => Array.from(sel.selectedOptions).map(o => o.value));
 
@@ -163,10 +106,21 @@ document.getElementById("customCakeForm").addEventListener("submit", async (e) =
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
+
     const data = await res.json();
+
     if (data.success) {
       alert("🎂 Custom cake added to cart!");
-      // Optional: window.location = "/cart";
+
+      // ✅ Update cart count in navbar (same logic as products.ejs)
+      const cartLink = document.querySelector('a[href="/cart"]');
+      if (cartLink) {
+        const countMatch = cartLink.textContent.match(/\((\d+)\)/);
+        let count = countMatch ? parseInt(countMatch[1]) : 0;
+        count += parseInt(payload.quantity);
+        cartLink.textContent = `🛒 Cart (${count})`;
+      }
+
     } else {
       alert(`⚠️ ${data.error || "Could not add custom cake."}`);
     }
@@ -178,5 +132,8 @@ document.getElementById("customCakeForm").addEventListener("submit", async (e) =
 </script>
 
 
+<footer>
+    <p>&copy; 2025 The Baker Barns Bakery</p>
+  </footer>
  </body>
 </html>
