@@ -497,3 +497,36 @@ footer { background: var(--brand-pink); text-align: center; padding: 1rem; margi
   height: 60px;
   resize: vertical;
 }
+
+/* ====== Admin Products Table Column Widths ====== */
+.admin-products-table th:nth-child(2),
+.admin-products-table td:nth-child(2) {
+  width: 40%;                /* Wider description column */
+}
+
+.admin-products-table th:nth-child(3),
+.admin-products-table td:nth-child(3) {
+  width: 12%;                  /* Narrower price columns */
+
+}
+
+.admin-products-table th:nth-child(4),
+.admin-products-table td:nth-child(4) {
+  width: 5%;                /* Narrower stock columns */
+}
+
+.admin-products-table th:nth-child(1),
+.admin-products-table td:nth-child(1) {
+  width: 20%;                /* Name */
+}
+
+.admin-products-table th:nth-child(5),
+.admin-products-table td:nth-child(5) {
+  width: 10%;                /* Category */
+}
+
+.admin-products-table th:nth-child(6),
+.admin-products-table td:nth-child(6) {
+  width: 10%;                /* Actions */
+}
+

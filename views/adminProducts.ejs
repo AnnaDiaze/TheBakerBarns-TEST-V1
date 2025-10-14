@@ -1,6 +1,30 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <%- include('partials/header1.ejs') %>
+  <title>Admin – Manage Products</title>
+  <style>
+    /* Small page-local helpers (optional: move to styles.css) */
+    .admin-actionbar {
+      padding:12px 16px; margin-top:24px;
+      display:flex; flex-wrap:wrap; gap:8px;
+    }
+    .card {
+      background:#fff; border-radius:12px; padding:16px;
+      box-shadow:0 4px 12px rgba(0,0,0,.08);
+      margin-bottom:18px;
+    }
+    .form-grid {
+      display:grid; gap:12px;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      align-items:flex-start;
+    }
+    .form-grid textarea { grid-column: 1 / -1; min-height: 90px; }
+    .table-actions { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+    .input, .select, .textarea {
+      width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;
+    }
+  </style>
 </head>
 <body>
   <header>
@@ -8,91 +32,174 @@
     <%- include('partials/navbar1.ejs') %>
   </header>
 
-  <!-- Admin Action Bar -->
-  <div class="d-flex flex-wrap p-2 bg-light border-bottom">
-    <a href="/adminonly" class="btn btn-outline-dark m-1">Admin Panel</a>
-    <a href="/admin/Orders" class="btn btn-outline-dark m-1">Manage Orders</a>
-    <a href="/admin/Products" class="btn btn-outline-dark m-1">Manage Products</a>
-    <a href="/admin/Recipes" class="btn btn-outline-dark m-1">Manage Recipes</a>
-    <a href="/admin/Users" class="btn btn-outline-dark m-1">Manage Users</a>
-  </div>
+  <!-- Admin nav -->
+  <nav class="cart-container cart-container--wide admin-actionbar">
+    <a class="btn btn-accent"  href="/adminOnly">Admin Panel</a>
+    <a class="btn btn-primary" href="/admin/Orders">Manage Orders</a>
+    <a class="btn btn-primary" href="/admin/Products">Manage Products</a>
+    <a class="btn btn-primary" href="/admin/Recipes">Manage Recipes</a>
+    <a class="btn btn-primary" href="/admin/Users">Manage Users</a>
+  </nav>
 
-  <h1>Manage Products</h1>
+  <main class="cart-container cart-container--wide">
+    <h2 style="text-align:left; margin:0 0 16px;">Manage Products</h2>
 
-  <!-- Add new product -->
-  <form action="/admin/products/add" method="POST">
-    <input type="text" name="name" placeholder="Product Name" required />
-    <textarea name="description" placeholder="Description"></textarea>
-    <input type="number" name="price" placeholder="Price" step="0.01" min="0" required />
-    <input type="number" name="stock" placeholder="Stock" min="0" required />
+    <!-- Add Product -->
+    <section class="card">
+      <h3 style="margin-top:0;">Add New Product</h3>
+      <form action="/admin/Products/add" method="POST" class="form-grid">
+        <div>
+          <label>Name</label>
+          <input class="input" type="text" name="name" placeholder="Product Name" required />
+        </div>
 
-    <select name="category_id" required>
-      <% categories.forEach(cat => { %>
-        <option value="<%= cat.id %>"><%= cat.name %></option>
-      <% }) %>
-    </select>
+        <div>
+          <label>Price</label>
+          <input class="input" type="number" name="price" placeholder="0.00" step="0.01" min="0" required />
+        </div>
 
-    <button type="submit" class="btn btn-update">Add Product</button>
-  </form>
+        <div>
+          <label>Stock</label>
+          <input class="input" type="number" name="stock" placeholder="0" min="0" required />
+        </div>
 
-  <hr>
+        <div>
+          <label>Category</label>
+          <select class="select" name="category_id" required>
+            <% categories.forEach(cat => { %>
+              <option value="<%= cat.id %>"><%= cat.name %></option>
+            <% }) %>
+          </select>
+        </div>
 
-  <!-- List existing products -->
-  <h3>Active Products</h3>
-  <table>
-    <tr>
-      <th>Name</th><th>Description</th><th>Price</th><th>Stock</th><th>Category</th><th>Update</th><th>Archive</th>
-    </tr>
-    <% products.forEach(product => { %>
-      <tr>
-        <form action="/admin/products/update/<%= product.id %>" method="POST">
-          <td><input type="text" name="name" value="<%= product.name %>"></td>
-          <td><textarea name="description"><%= product.description %></textarea></td>
-          <td><input type="number" name="price" value="<%= product.price %>" step="0.01" min="0"></td>
-          <td><input type="number" name="stock" value="<%= product.stock %>"></td>
-          <td>
-            <select name="category_id" required>
-              <% categories.forEach(cat => { %>
-                <option value="<%= cat.id %>" <%= cat.id === product.category_id ? 'selected' : '' %>>
-                  <%= cat.name %>
-                </option>
-              <% }) %>
-            </select>
-          </td>
-          <td><button type="submit" class="btn btn-update">Update</button></td>
-        </form>
-        <form action="/admin/products/archive/<%= product.id %>" method="POST" style="display:inline;">
-          <td><button type="submit" class="btn btn-delete">Archive</button></td>
-        </form>
-      </tr>
-    <% }) %>
-  </table>
+        <div style="grid-column:1/-1;">
+          <label>Description</label>
+          <textarea class="textarea" name="description" placeholder="Short description…"></textarea>
+        </div>
 
-  <hr>
-  <h3>Archived Products</h3>
-  <table>
-    <tr>
-      <th>Name</th><th>Description</th><th>Price</th><th>Stock</th><th>Category</th><th>Actions</th>
-    </tr>
-    <% archivedProducts.forEach(product => { %>
-      <tr>
-        <td><%= product.name %></td>
-        <td><%= product.description %></td>
-        <td><%= product.price %></td>
-        <td><%= product.stock %></td>
-        <td><%= product.category_id %></td>
-        <td>
-          <form action="/admin/products/restore/<%= product.id %>" method="POST" style="display:inline;">
-            <button type="submit" class="btn btn-update">Restore</button>
-          </form>
-        </td>
-      </tr>
-      <% }) %>
+        <div style="grid-column:1/-1; display:flex; justify-content:flex-end; gap:10px;">
+          <button type="submit" class="btn btn-primary">Add Product</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Active Products -->
+<section class="card">
+  <h3 style="margin-top:0;">Active Products</h3>
+
+  <div class="table-responsive">
+    <table class="cart-table cart-table--outlined admin-products-table">
+      <thead>
+        <tr>
+          <th style="min-width:160px;">Name</th>
+          <th>Description</th>
+          <th style="min-width:120px;">Price</th>
+          <th style="min-width:100px;">Stock</th>
+          <th style="min-width:160px;">Category</th>
+          <th style="min-width:180px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% products.forEach(product => { 
+             const formId = `form-${product.id}`;
+        %>
+          <!-- Hidden form that collects all inputs in this row -->
+          <form id="<%= formId %>" action="/admin/Products/update/<%= product.id %>" method="POST" style="display:none;"></form>
+
+          <tr>
+            <!-- NAME -->
+            <td style="text-align:left;">
+              <input class="input" type="text" name="name" form="<%= formId %>" value="<%= product.name %>" required>
+            </td>
+
+            <!-- DESCRIPTION -->
+            <td style="text-align:left; max-width:420px;">
+              <textarea class="textarea" name="description" form="<%= formId %>"><%= product.description %></textarea>
+            </td>
+
+            <!-- PRICE -->
+            <td>
+              <input class="input" type="number" name="price" form="<%= formId %>"
+                     value="<%= Number(product.price || 0).toFixed(2) %>" step="0.01" min="0" required>
+            </td>
+
+            <!-- STOCK -->
+            <td>
+              <input class="input" type="number" name="stock" form="<%= formId %>"
+                     value="<%= product.stock %>" min="0" required>
+            </td>
+
+            <!-- CATEGORY -->
+            <td>
+              <select class="select" name="category_id" form="<%= formId %>" required>
+                <% categories.forEach(cat => { %>
+                  <option value="<%= cat.id %>" <%= cat.id === product.category_id ? 'selected' : '' %>><%= cat.name %></option>
+                <% }) %>
+              </select>
+            </td>
+
+            <!-- ACTIONS -->
+            <td>
+              <div class="table-actions">
+                <button type="submit" class="btn btn-primary btn-sm" form="<%= formId %>">Save</button>
+
+                <form action="/admin/Products/archive/<%= product.id %>" method="POST" class="inline-form">
+                  <button type="submit" class="btn btn-accent btn-sm">Archive</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
     </table>
+  </div>
+</section>
 
 
+    <!-- Archived Products -->
+    <section class="card">
+      <h3 style="margin-top:0;">Archived Products</h3>
 
-  <a href="/adminOnly" class="btn btn-update">← Back </a>
+      <div class="table-responsive">
+        <table class="cart-table cart-table--outlined">
+          <thead>
+            <tr>
+              <th style="min-width:160px;">Name</th>
+              <th>Description</th>
+              <th style="min-width:120px;">Price</th>
+              <th style="min-width:100px;">Stock</th>
+              <th style="min-width:160px;">Category</th>
+              <th style="min-width:140px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% archivedProducts.forEach(product => { 
+                 const cat = categories.find(c => c.id === product.category_id);
+            %>
+              <tr>
+                <td style="text-align:left;"><%= product.name %></td>
+                <td style="text-align:left; max-width:520px;"><%= product.description %></td>
+                <td>$<%= Number(product.price||0).toFixed(2) %></td>
+                <td><%= product.stock %></td>
+                <td><%= cat ? cat.name : ('ID ' + product.category_id) %></td>
+                <td>
+                  <div class="table-actions">
+                    <form action="/admin/Products/restore/<%= product.id %>" method="POST" class="inline-form">
+                      <button type="submit" class="btn btn-primary btn-sm">Restore</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div style="margin-top:8px;">
+      <a href="/adminOnly" class="btn btn-primary">← Back</a>
+    </div>
+  </main>
 
   <footer>
     <p>&copy; 2025 The Baker Barns Bakery</p>
