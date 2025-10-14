@@ -4,49 +4,36 @@
   <%- include('partials/header1.ejs') %>
   <title>Admin Panel</title>
   <style>
-    /* Page-local helpers (you can move these to styles.css if you prefer) */
-    .admin-actionbar { padding:12px 16px; margin-top:24px; display:flex; flex-wrap:wrap; gap:8px; }
-    .card { background:#fff; border-radius:12px; padding:16px; box-shadow:0 4px 12px rgba(0,0,0,.08); }
-    .admin-hero {
-      background: var(--brand-rose, #ffe4e1);
-      border-radius: 12px;
-      padding: 22px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 18px;
+    /* Small, local styles just for this page */
+    .admin-actionbar { padding:12px 16px; margin-top:24px; display:flex; gap:8px; flex-wrap:wrap; }
+    .dash { max-width:1200px; margin: 16px auto 32px; padding: 0 10px; }
+    .welcome {
+      background:#ffe4e1; border:1px solid #f6c2cb; color:#8a3d3d;
+      border-radius:12px; padding:18px; text-align:center; box-shadow:0 4px 10px rgba(0,0,0,.05);
+      margin-bottom:16px;
     }
-    .admin-hero h2 { margin: 0 0 6px; color:#c0392b; }
-    .admin-grid {
-      display:grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap:16px;
-    }
-    @media (max-width: 1100px) {
-      .admin-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 640px) {
-      .admin-grid { grid-template-columns: 1fr; }
-    }
-    .tile {
-      display:flex; flex-direction:column; gap:10px;
-      border:1px solid #f2d2da; /* soft outline to match tables */
-    }
-    .tile h3 { margin:0; font-size:18px; }
-    .tile p { margin:0; color:#555; line-height:1.5; }
-    .tile .tile-footer { margin-top:auto; display:flex; gap:8px; flex-wrap:wrap; }
-    .soft { color:#666; font-size:14px; }
+    .stat-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:16px; margin-bottom:16px; }
+    .stat { background:#fff; border:1px solid #eee; border-radius:12px; padding:16px; text-align:center; box-shadow:0 4px 10px rgba(0,0,0,.05); }
+    .stat h4 { margin:0 0 6px; font-size:14px; color:#777; }
+    .stat .num { font-size:28px; font-weight:800; color:#b35414; line-height:1; }
+    .stat small { display:block; margin-top:6px; color:#888; }
+    .tiles { display:grid; grid-template-columns: repeat(4, 1fr); gap:16px; }
+    .tile { background:#fff; border:1px solid #eee; border-radius:12px; padding:14px; box-shadow:0 4px 10px rgba(0,0,0,.05);}
+    .tile h5 { margin:0 0 8px; font-size:16px; color:#333; display:flex; align-items:center; gap:8px; }
+    .tile p { margin:0 0 12px; color:#666; font-size:14px; min-height:44px; }
+    .kpi { margin-top:22px; background:#fff; border:1px solid #eee; border-radius:12px; padding:14px; box-shadow:0 4px 10px rgba(0,0,0,.05); }
+    .kpi h3 { margin:0 0 8px; font-size:16px; }
+    @media (max-width: 1040px){ .tiles{ grid-template-columns: repeat(2, 1fr);} }
+    @media (max-width: 720px){ .stat-grid{ grid-template-columns: 1fr; } .tiles{ grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
-  <!-- Top navbar -->
   <header>
     <h1>The Baker Barns Bakery</h1>
     <%- include('partials/navbar1.ejs') %>
   </header>
 
-  <!-- Admin nav pills -->
+  <!-- Admin nav -->
   <nav class="cart-container cart-container--wide admin-actionbar">
     <a class="btn btn-accent"  href="/adminOnly">Admin Panel</a>
     <a class="btn btn-primary" href="/admin/Orders">Manage Orders</a>
@@ -55,66 +42,68 @@
     <a class="btn btn-primary" href="/admin/Users">Manage Users</a>
   </nav>
 
-  <main class="cart-container cart-container--wide">
-    <!-- Welcome / hero -->
-    <section class="admin-hero card">
-      <div>
-        <h2>Welcome<% if (typeof username !== 'undefined' && username) { %>, <%= username %><% } %>!</h2>
-        <div class="soft">Use the quick actions below to jump into common admin tasks.</div>
+  <main class="dash">
+    <!-- Welcome / CTA -->
+    <section class="welcome">
+      <h2 style="margin:0;">Welcome, <%= username %>!</h2>
+      <p style="margin:.35rem 0 1rem;">Here’s a quick snapshot of your bakery and this month’s sales.</p>
+      <a href="/admin/Orders" class="btn btn-primary btn-sm">View Orders</a>
+    </section>
+
+    <!-- Top stats -->
+    <section class="stat-grid">
+      <div class="stat">
+        <h4>Orders</h4>
+        <div class="num"><%= ordersTotal %></div>
+        <small>Pending: <%= ordersPending %> · Completed: <%= ordersCompleted %></small>
       </div>
-      <div>
-        <a href="/admin/Orders" class="btn btn-primary">View Orders</a>
+
+      <div class="stat">
+        <h4>Products</h4>
+        <div class="num"><%= productsActive %></div>
+        <small>Archived: <%= productsArchived %> · Low stock: <%= productsLowStock %></small>
+      </div>
+
+      <div class="stat">
+        <h4>Users</h4>
+        <div class="num"><%= usersTotal %></div>
+        <small>Active: <%= usersActive %> · Blocked: <%= usersBlocked %></small>
       </div>
     </section>
 
-    <!-- Dashboard tiles -->
-    <section class="admin-grid">
-      <!-- Orders -->
-      <article class="card tile">
-        <h3>📦 Manage Orders</h3>
+    <!-- Quick tiles -->
+    <section class="tiles">
+      <article class="tile">
+        <h5>🧾 Manage Orders</h5>
         <p>Review new orders, update statuses, and view item details for pickup.</p>
-        <div class="tile-footer">
-          <a href="/admin/Orders" class="btn btn-primary">Open Orders</a>
-        </div>
+        <a href="/admin/Orders" class="btn btn-primary btn-sm">Open Orders</a>
       </article>
 
-      <!-- Products -->
-      <article class="card tile">
-        <h3>🧁 Manage Products</h3>
+      <article class="tile">
+        <h5>🧁 Manage Products</h5>
         <p>Add new items, edit descriptions/prices/stock, or archive/restore products.</p>
-        <div class="tile-footer">
-          <a href="/admin/Products" class="btn btn-primary">Open Products</a>
-        </div>
+        <a href="/admin/Products" class="btn btn-primary btn-sm">Open Products</a>
       </article>
 
-      <!-- Recipes -->
-      <article class="card tile">
-        <h3>📖 Manage Recipes</h3>
-        <p>Maintain recipe content for your site: titles, ingredients, methods and images.</p>
-        <div class="tile-footer">
-          <a href="/admin/Recipes" class="btn btn-primary">Open Recipes</a>
-        </div>
+      <article class="tile">
+        <h5>📋 Manage Recipes</h5>
+        <p>Maintain recipe content (titles, ingredients, methods, and images).</p>
+        <a href="/admin/Recipes" class="btn btn-primary btn-sm">Open Recipes</a>
       </article>
 
-      <!-- Users -->
-      <article class="card tile">
-        <h3>👤 Manage Users</h3>
-        <p>Update user profiles and roles, block/unblock users, or remove accounts.</p>
-        <div class="tile-footer">
-          <a href="/admin/Users" class="btn btn-primary">Open Users</a>
-        </div>
+      <article class="tile">
+        <h5>👤 Manage Users</h5>
+        <p>Update roles, block/unblock users, or remove accounts.</p>
+        <a href="/admin/Users" class="btn btn-primary btn-sm">Open Users</a>
       </article>
     </section>
 
-    <!-- Optional quick links -->
-    <section class="card" style="margin-top:16px;">
-      <h3 style="margin-top:0;">Quick Links</h3>
-      <ul style="margin:8px 0 0 18px;">
-        <li><a href="/admin/Orders">Latest orders</a></li>
-        <li><a href="/admin/Products">Low stock items</a></li>
-        <li><a href="/admin/Recipes">Add a new recipe</a></li>
-        <li><a href="/admin/Users">Invite or update a staff account</a></li>
-      </ul>
+    <!-- Month KPI (no chart) -->
+    <section class="kpi">
+      <h3>This Month’s Sales (Completed)</h3>
+      <div style="font-weight:800; font-size:22px; color:#b35414;">
+        <%= monthName %> total: $<%= Number(monthSalesTotal || 0).toFixed(2) %>
+      </div>
     </section>
   </main>
 
