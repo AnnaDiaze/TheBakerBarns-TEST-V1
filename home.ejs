@@ -1,0 +1,207 @@
+<html>
+<head>
+  <%- include('partials/header1.ejs') %>
+  <!-- Page-specific helpers. If you prefer a single stylesheet, move these rules to /public/css/style.css -->
+  <style>
+    :root { --bb-dark:#1f1f1f; --bb-accent:#ff4d6d; --bb-cream:#fff3f6; }
+    .hero {
+      position: relative; min-height: 70vh; display:flex; align-items:center; justify-content:center;
+      text-align:center; color:#fff; overflow:hidden; border-radius:1.5rem; margin:1.25rem auto;
+      background: #111 url('/images/home/hero.jpg') center/cover no-repeat;
+    }
+    .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.45),rgba(0,0,0,.55));}
+    .hero > .hero-content{position:relative; z-index:2; padding:2rem 1.25rem;}
+    .hero h1{font-weight:800; letter-spacing:.5px;}
+    .bb-badge{background:var(--bb-accent); color:#fff; border-radius:999px; padding:.4rem .85rem; font-size:.9rem;}
+    .bb-section{padding:3.5rem 0;}
+    .bb-card{border:0; border-radius:1rem; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,.08); height:100%;}
+    .bb-card img{width:100%; height:220px; object-fit:cover;}
+    .bb-card .price{font-weight:700;}
+    .bb-why{background:var(--bb-cream);} 
+    .bb-why .icon{font-size:2rem;}
+    .bb-cta{background: linear-gradient(135deg, var(--bb-accent), #ff8fab); color:#fff; border-radius:1.25rem;}
+    .bb-cta a.btn{background:#fff; color:#000; border:0;}
+    .bb-quote{font-style:italic;}
+    .bb-footer{color:#999;}
+  </style>
+</head>
+<body>
+  <!-- Header / Nav -->
+  <header>
+    <div >
+      <a>
+        <h1>The Baker Barns Bakery</h1>
+      </a>
+      <%- include('partials/navbar1.ejs') %>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <span class="bb-badge mb-3 d-inline-block">Baked fresh daily</span>
+        <h1 class="display-5 mb-3">Cakes that make every moment sweet</h1>
+        <p class="lead mb-4">Order customer favourites or design your own custom cake in minutes.</p>
+        <div class="d-flex justify-content-center gap-2 flex-wrap">
+          <a href="/products" class="btn btn-light btn-lg px-4">Shop Cakes</a>
+          <a href="/custom_cake" class="btn btn-outline-light btn-lg px-4">Build a Custom Cake</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Popular Categories / Best Sellers -->
+    <section class="bb-section">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h2 class="h3 m-0">Best Sellers</h2>
+        <a href="/products" class="link-dark">View all →</a>
+      </div>
+      <div class="row g-3 g-md-4">
+        <% const bestSellers = [
+          {title:'Classic Chocolate', img:'/images/home/chocolate.jpg', price:'$39', href:'/products?search=chocolate'},
+          {title:'Red Velvet', img:'/images/home/red-velvet.jpg', price:'$45', href:'/products?search=red%20velvet'},
+          {title:'Strawberry Bliss', img:'/images/home/strawberry.jpg', price:'$42', href:'/products?search=strawberry'},
+          {title:'Black Forest', img:'/images/home/black-forest.jpg', price:'$49', href:'/products?search=black%20forest'},
+          {title:'Lemon Drizzle', img:'/images/home/lemon.jpg', price:'$38', href:'/products?search=lemon'},
+          {title:'Vanilla Dream', img:'/images/home/vanilla.jpg', price:'$36', href:'/products?search=vanilla'}
+        ]; %>
+        <% bestSellers.forEach(item => { %>
+          <div class="col-6 col-md-4 col-lg-3">
+            <a class="text-decoration-none text-dark" href="<%= item.href %>">
+              <div class="card bb-card">
+                <img src="<%= item.img %>" alt="<%= item.title %>" loading="lazy">
+                <div class="card-body">
+                  <h3 class="h6 mb-1"><%= item.title %></h3>
+                  <div class="d-flex align-items-center justify-content-between">
+                    <span class="price"><%= item.price %></span>
+                    <span class="badge text-bg-light">Popular</span>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+        <% }) %>
+      </div>
+    </section>
+
+    <!-- Why Choose Us -->
+    <section class="bb-section bb-why rounded-4">
+      <div class="row align-items-center g-4 p-4 p-md-5">
+        <div class="col-md-4">
+          <h2 class="h3">Why choose Baker Barns?</h2>
+          <p class="mb-0">From premium ingredients to friendly delivery, we keep things simple, delicious, and on time.</p>
+        </div>
+        <div class="col-md-8">
+          <div class="row g-3 g-md-4">
+            <div class="col-6 col-lg-4">
+              <div class="p-3 bg-white rounded-4 h-100 shadow-sm">
+                <div class="icon">🎂</div>
+                <div class="fw-semibold mt-2">Made Fresh Daily</div>
+                <small class="text-muted">Baked in small batches for peak flavour.</small>
+              </div>
+            </div>
+            <div class="col-6 col-lg-4">
+              <div class="p-3 bg-white rounded-4 h-100 shadow-sm">
+                <div class="icon">🧁</div>
+                <div class="fw-semibold mt-2">Custom Designs</div>
+                <small class="text-muted">Create a cake that’s uniquely you.</small>
+              </div>
+            </div>
+            <div class="col-6 col-lg-4">
+              <div class="p-3 bg-white rounded-4 h-100 shadow-sm">
+                <div class="icon">🚚</div>
+                <div class="fw-semibold mt-2">Same‑Day Pickup</div>
+                <small class="text-muted">Order by 11am for same‑day options.</small>
+              </div>
+            </div>
+            <div class="col-6 col-lg-4">
+              <div class="p-3 bg-white rounded-4 h-100 shadow-sm">
+                <div class="icon">⭐</div>
+                <div class="fw-semibold mt-2">Loved Locally</div>
+                <small class="text-muted">4.8★ average from happy customers.</small>
+              </div>
+            </div>
+            <div class="col-6 col-lg-4">
+              <div class="p-3 bg-white rounded-4 h-100 shadow-sm">
+                <div class="icon">🌿</div>
+                <div class="fw-semibold mt-2">Quality Ingredients</div>
+                <small class="text-muted">No shortcuts—just great taste.</small>
+              </div>
+            </div>
+            <div class="col-6 col-lg-4">
+              <div class="p-3 bg-white rounded-4 h-100 shadow-sm">
+                <div class="icon">💳</div>
+                <div class="fw-semibold mt-2">Secure Checkout</div>
+                <small class="text-muted">Fast, safe, and easy payments.</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Custom Cake CTA -->
+    <section class="bb-section">
+      <div class="bb-cta p-4 p-md-5 d-flex flex-column flex-lg-row align-items-center justify-content-between gap-3">
+        <div>
+          <h2 class="h3 mb-2">Got a celebration coming up?</h2>
+          <p class="mb-0">Design a custom cake—choose flavours, layers, frosting, toppers and more.</p>
+        </div>
+        <div>
+          <a href="/custom_cake" class="btn btn-lg">Start Customising</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="bb-section">
+      <h2 class="h3 mb-3">What customers say</h2>
+      <div class="row g-3 g-md-4">
+        <% const quotes = [
+          {name:'Emma R.', text:'Absolutely delicious! The Red Velvet was a hit at our party.'},
+          {name:'Jason T.', text:'Easy ordering and on‑time pickup. Will be back soon!'},
+          {name:'Aisha K.', text:'Custom cake looked stunning and tasted even better.'}
+        ]; %>
+        <% quotes.forEach(q => { %>
+          <div class="col-md-4">
+            <div class="p-4 border rounded-4 h-100">
+              <p class="bb-quote">“<%= q.text %>”</p>
+              <div class="fw-semibold">— <%= q.name %></div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </section>
+
+    <!-- Newsletter / Offers -->
+    <section class="bb-section">
+      <div class="border rounded-4 p-4 p-md-5">
+        <div class="row g-4 align-items-center">
+          <div class="col-md-6">
+            <h2 class="h4 mb-2">Sweet deals in your inbox</h2>
+            <p class="text-muted mb-0">Sign up for weekly specials, seasonal flavours, and celebrations.</p>
+          </div>
+          <div class="col-md-6">
+            <form class="d-flex gap-2" action="/subscribe" method="post">
+              <input name="email" type="email" class="form-control" placeholder="Enter your email" required>
+              <button class="btn btn-dark" type="submit">Subscribe</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bb-footer border-top mt-4">
+    <div class="container py-4 d-flex flex-column flex-md-row justify-content-between gap-2">
+      <div>© 2025 The Baker Barns Bakery</div>
+      <div class="d-flex gap-3">
+        <a class="text-decoration-none" href="/about">About</a>
+        <a class="text-decoration-none" href="/recipes">Recipes</a>
+        <a class="text-decoration-none" href="/contact">Contact</a>
+        <a class="text-decoration-none" href="/adminonly">Admin</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

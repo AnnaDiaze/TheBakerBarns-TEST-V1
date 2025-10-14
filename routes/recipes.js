@@ -9,7 +9,7 @@ const conn = require('../dbConfig');
 router.get('/recipes', (req, res) => {
   conn.query('SELECT * FROM recipes ORDER BY created_at DESC', (err, results) => {
     if (err) throw err;
-    res.render('blog', { recipes: results });
+    res.render('recipes', { recipes: results });
   });
 });
 

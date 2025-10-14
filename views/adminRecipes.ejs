@@ -15,12 +15,11 @@
     .image-controls input[type="file"] { display:block; }
     .image-url { width:100%; max-width: 280px; }
     .is-hidden { display: none; }
-    .admin-recipes-table th:nth-child(2), .admin-recipes-table td:nth-child(2) { width: 25%; }
-    .admin-recipes-table th:nth-child(3), .admin-recipes-table td:nth-child(3),
-    .admin-recipes-table th:nth-child(4), .admin-recipes-table td:nth-child(4) { width: 25%; }
-    .admin-recipes-table th:nth-child(1), .admin-recipes-table td:nth-child(1) { width: 15%; }
-    .admin-recipes-table th:nth-child(5), .admin-recipes-table td:nth-child(5) { width: 15%; }
-    .admin-recipes-table th:nth-child(6), .admin-recipes-table td:nth-child(6) { width: 10%; }
+    .admin-recipes-table th:nth-child(1), .admin-recipes-table td:nth-child(1) { width: 10%; }
+    .admin-recipes-table th:nth-child(3), .admin-recipes-table td:nth-child(2),
+    .admin-recipes-table th:nth-child(4), .admin-recipes-table td:nth-child(3) { width: 30%; }
+    .admin-recipes-table th:nth-child(5), .admin-recipes-table td:nth-child(4) { width: 15%; }
+    .admin-recipes-table th:nth-child(6), .admin-recipes-table td:nth-child(5) { width: 10%; }
   </style>
 </head>
 
@@ -49,11 +48,6 @@
         <div>
           <label>Title</label>
           <input type="text" name="title" placeholder="Recipe title" required />
-        </div>
-
-        <div style="grid-column:1/-1;">
-          <label>Description</label>
-          <textarea name="description" placeholder="Short description"></textarea>
         </div>
 
         <div>
@@ -90,7 +84,6 @@
           <thead>
             <tr>
               <th>Title</th>
-              <th>Description</th>
               <th>Ingredients</th>
               <th>Method</th>
               <th>Image</th>
@@ -102,7 +95,6 @@
               <tr>
                 <form action="/admin/Recipes/update/<%= r.id %>" method="POST" enctype="multipart/form-data">
                   <td><input type="text" name="title" value="<%= r.title %>" required></td>
-                  <td><textarea name="description"><%= r.description %></textarea></td>
                   <td><textarea name="ingredients"><%= r.ingredients %></textarea></td>
                   <td><textarea name="method"><%= r.method %></textarea></td>
 

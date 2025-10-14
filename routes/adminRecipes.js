@@ -37,11 +37,11 @@ router.get("/", isAdmin, (req, res) => {
 
 // Add recipe (multipart)
 router.post("/add", isAdmin, upload.single('image_file'), (req, res) => {
-  const { title, description, ingredients, method } = req.body;
+  const { title, ingredients, method } = req.body;
   const image = req.file ? `/images/recipe/${req.file.filename}` : (req.body.image || '');
   conn.query(
-    'INSERT INTO recipes (title, description, ingredients, method, image) VALUES (?, ?, ?, ?, ?)',
-    [title, description, ingredients, method, image],
+    'INSERT INTO recipes (title, ingredients, method, image) VALUES (?, ?, ?, ?, ?)',
+    [title, ingredients, method, image],
     (err) => {
       if (err) throw err;
       res.redirect('/admin/Recipes');
@@ -52,11 +52,11 @@ router.post("/add", isAdmin, upload.single('image_file'), (req, res) => {
 // Update recipe (multipart)
 router.post("/update/:id", isAdmin, upload.single('image_file'), (req, res) => {
   const id = req.params.id;
-  const { title, description, ingredients, method } = req.body;
+  const { title, ingredients, method } = req.body;
   const image = req.file ? `/images/recipe/${req.file.filename}` : (req.body.image || '');
   conn.query(
-    'UPDATE recipes SET title=?, description=?, ingredients=?, method=?, image=? WHERE id=?',
-    [title, description, ingredients, method, image, id],
+    'UPDATE recipes SET title=?, ingredients=?, method=?, image=? WHERE id=?',
+    [title, ingredients, method, image, id],
     (err) => {
       if (err) throw err;
       res.redirect('/admin/Recipes');
