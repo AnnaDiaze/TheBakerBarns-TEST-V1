@@ -1,67 +1,165 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <%- include('partials/header1.ejs') %>
+  <%- include('partials/header1.ejs') %>
+  <title>Admin – Manage Recipes</title>
+  <style>
+    .admin-actionbar { padding:12px 16px; margin-top:24px; display:flex; flex-wrap:wrap; gap:8px; }
+    .card { background:#fff; border-radius:12px; padding:16px; box-shadow:0 4px 12px rgba(0,0,0,.08); margin-bottom:18px; }
+    .form-grid { display:grid; gap:12px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); align-items:flex-start; }
+    textarea { width:100%; min-height:100px; border-radius:8px; padding:8px; border:1px solid #ddd; }
+    input[type="text"], input[type="number"] { width:100%; padding:10px; border-radius:8px; border:1px solid #ddd; }
+    .table-actions { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+    .thumb { width: 96px; height: 72px; object-fit: cover; border-radius: 8px; display:block; border:1px solid #eee; background:#fafafa; }
+    .image-controls { display:flex; flex-direction:column; gap:6px; align-items:flex-start; }
+    .image-controls input[type="file"] { display:block; }
+    .image-url { width:100%; max-width: 280px; }
+    .is-hidden { display: none; }
+    .admin-recipes-table th:nth-child(2), .admin-recipes-table td:nth-child(2) { width: 25%; }
+    .admin-recipes-table th:nth-child(3), .admin-recipes-table td:nth-child(3),
+    .admin-recipes-table th:nth-child(4), .admin-recipes-table td:nth-child(4) { width: 25%; }
+    .admin-recipes-table th:nth-child(1), .admin-recipes-table td:nth-child(1) { width: 15%; }
+    .admin-recipes-table th:nth-child(5), .admin-recipes-table td:nth-child(5) { width: 15%; }
+    .admin-recipes-table th:nth-child(6), .admin-recipes-table td:nth-child(6) { width: 10%; }
+  </style>
 </head>
+
 <body>
   <header>
     <h1>The Baker Barns Bakery</h1>
     <%- include('partials/navbar1.ejs') %>
   </header>
 
-</body>
+  <!-- Admin Nav -->
+  <nav class="cart-container cart-container--wide admin-actionbar">
+    <a class="btn btn-accent" href="/adminOnly">Admin Panel</a>
+    <a class="btn btn-primary" href="/admin/Orders">Manage Orders</a>
+    <a class="btn btn-primary" href="/admin/Products">Manage Products</a>
+    <a class="btn btn-primary" href="/admin/Recipes">Manage Recipes</a>
+    <a class="btn btn-primary" href="/admin/Users">Manage Users</a>
+  </nav>
 
-  <!-- Admin Action Bar -->
-  <div class="d-flex flex-wrap p-2 bg-light border-bottom">
-    <a href="/adminonly" class="btn btn-outline-dark m-1">Admin Panel</a>
-    <a href="/admin/Orders" class="btn btn-outline-dark m-1">Manage Orders</a>
-    <a href="/admin/Products" class="btn btn-outline-dark m-1">Manage Products</a>
-    <a href="/admin/Recipes" class="btn btn-outline-dark m-1">Manage Recipes</a>
-    <a href="/admin/Users" class="btn btn-outline-dark m-1">Manage Users</a>
-  </div>
+  <main class="cart-container cart-container--wide">
+    <h2 style="text-align:left; margin:0 0 16px;">Manage Recipes</h2>
 
-<h2>Manage Recipes</h2>
+    <!-- Add Recipe -->
+    <section class="card">
+      <h3 style="margin-top:0;">Add New Recipe</h3>
+      <form action="/admin/Recipes/add" method="POST" class="form-grid" enctype="multipart/form-data">
+        <div>
+          <label>Title</label>
+          <input type="text" name="title" placeholder="Recipe title" required />
+        </div>
 
-<form action="/admin/Recipes/add" method="POST">
-  <input type="text" name="title" placeholder="Title" required>
-  <textarea name="description" placeholder="Description"></textarea>
-  <textarea name="ingredients" placeholder="Ingredients (one per line)"></textarea>
-  <textarea name="method" placeholder="Method (one step per line)"></textarea>
-  <input type="text" name="image" placeholder="Image URL" >
-  <!-- <input type="text" name="category" placeholder="Categories (comma separated)"> -->
-  <button type="submit" class="btn btn-update">Add Recipe</button>
-</form>
+        <div style="grid-column:1/-1;">
+          <label>Description</label>
+          <textarea name="description" placeholder="Short description"></textarea>
+        </div>
 
-<table>
-  <thead>
-    <tr>
-      <th>Title</th>
-      <th>Description</th>
-      <th>Ingredients</th>
-      <th>Method</th>
-      <th>Image</th>
-      <th>Action</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% recipes.forEach(r => { %>
-      <tr>
-        <form action="/admin/Recipes/update/<%= r.id %>" method="POST">
-          <td><input type="text" name="title" value="<%= r.title %>" required></td>
-          <td><textarea name="description"><%= r.description %></textarea></td>
-          <td><textarea name="ingredients"><%= r.ingredients %></textarea></td>
-          <td><textarea name="method"><%= r.method %></textarea></td>
-          <td><input type="text" name="image" value="<%= r.image %>"></td>
-          <td>
-            <button type="submit" class="btn btn-update">Update</button>
-            <a href="/admin/Recipes/delete/<%= r.id %>" class="btn btn-delete">Delete</a>
-          </td>
-        </form>
-      </tr>
-    <% }) %>
-  </tbody>
-</table>
+        <div>
+          <label>Ingredients</label>
+          <textarea name="ingredients" placeholder="One per line"></textarea>
+        </div>
 
-<footer>
+        <div>
+          <label>Method</label>
+          <textarea name="method" placeholder="Step-by-step instructions"></textarea>
+        </div>
+
+        <!-- Image URL + Upload + Preview (ADD) -->
+        <div>
+          <label>Image</label>
+          <div class="image-controls">
+            <img class="thumb js-thumb is-hidden" src="" alt="Preview">
+            <input class="image-url js-image-url" type="text" name="image" placeholder="https://example.com/image.jpg" />
+            <input class="js-image-file" type="file" name="image_file" accept="image/*">
+          </div>
+        </div>
+
+        <div style="grid-column:1/-1; display:flex; justify-content:flex-end;">
+          <button type="submit" class="btn btn-primary">Add Recipe</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Existing Recipes -->
+    <section class="card">
+      <h3 style="margin-top:0;">Existing Recipes</h3>
+      <div class="table-responsive">
+        <table class="cart-table cart-table--outlined admin-recipes-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Description</th>
+              <th>Ingredients</th>
+              <th>Method</th>
+              <th>Image</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% recipes.forEach(r => { %>
+              <tr>
+                <form action="/admin/Recipes/update/<%= r.id %>" method="POST" enctype="multipart/form-data">
+                  <td><input type="text" name="title" value="<%= r.title %>" required></td>
+                  <td><textarea name="description"><%= r.description %></textarea></td>
+                  <td><textarea name="ingredients"><%= r.ingredients %></textarea></td>
+                  <td><textarea name="method"><%= r.method %></textarea></td>
+
+                  <!-- Image column with preview + URL + upload (UPDATE) -->
+                  <td>
+                    <div class="image-controls">
+                      <img
+                        class="thumb js-thumb <%= r.image ? '' : 'is-hidden' %>"
+                        src="<%= r.image || '' %>"
+                        alt="Preview"
+                      >
+                      <input class="image-url js-image-url" type="text" name="image" value="<%= r.image || '' %>" placeholder="Image URL">
+                      <input class="js-image-file" type="file" name="image_file" accept="image/*">
+                    </div>
+                  </td>
+
+                  <td class="table-actions">
+                    <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                    <a href="/admin/Recipes/delete/<%= r.id %>" class="btn btn-accent btn-sm">Delete</a>
+                  </td>
+                </form>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div style="margin-top:8px;">
+      <a href="/adminOnly" class="btn btn-primary">← Back</a>
+    </div>
+  </main>
+
+  <footer>
     <p>&copy; 2025 The Baker Barns Bakery</p>
   </footer>
+
+  <script>
+    // Attach preview behavior to any image-controls block (both "Add" and per-row)
+    function attachPreview(container) {
+      const url  = container.querySelector('.js-image-url');
+      const file = container.querySelector('.js-image-file');
+      const img  = container.querySelector('.js-thumb');
+
+      function show(src) {
+        if (!img) return;
+        if (src) { img.src = src; img.style.display = 'block'; }
+        else { img.removeAttribute('src'); img.style.display = 'none'; }
+      }
+
+      if (url) url.addEventListener('input', () => show(url.value.trim()));
+      if (file) file.addEventListener('change', () => {
+        if (file.files && file.files[0]) show(URL.createObjectURL(file.files[0]));
+      });
+    }
+
+    document.querySelectorAll('.image-controls').forEach(attachPreview);
+  </script>
+</body>
 </html>
