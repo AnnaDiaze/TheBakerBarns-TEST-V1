@@ -1,107 +1,208 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <%- include('partials/header1.ejs') %>
+  <%- include('partials/header1.ejs') %>
+  <title>Admin – Manage Users</title>
+  <style>
+    /* Page-local helpers (optional to move into styles.css) */
+    .admin-actionbar { padding:12px 16px; margin-top:24px; display:flex; flex-wrap:wrap; gap:8px; }
+    .card { background:#fff; border-radius:12px; padding:16px; box-shadow:0 4px 12px rgba(0,0,0,.08); margin-bottom:18px; }
+    .table-actions { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+    .input, .select { width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; }
+    /* Column widths for readability */
+    .admin-users-table th:nth-child(1),
+    .admin-users-table td:nth-child(1) { width: 20%; } /* Name */
+    .admin-users-table th:nth-child(2),
+    .admin-users-table td:nth-child(2) { width: 28%; } /* Email */
+    .admin-users-table th:nth-child(3),
+    .admin-users-table td:nth-child(3) { width: 18%; } /* Phone */
+    .admin-users-table th:nth-child(4),
+    .admin-users-table td:nth-child(4) { width: 14%; } /* Role */
+    .admin-users-table th:nth-child(5),
+    .admin-users-table td:nth-child(5) { width: 20%; } /* Actions */
+    @media (max-width: 980px){
+      .admin-users-table th, .admin-users-table td { white-space: nowrap; }
+    }
+  </style>
 </head>
+
 <body>
   <header>
     <h1>The Baker Barns Bakery</h1>
-   <%- include('partials/navbar1.ejs') %>
+    <%- include('partials/navbar1.ejs') %>
   </header>
-    
-  <!-- Admin Action Bar -->
-  <div class="d-flex flex-wrap p-2 bg-light border-bottom">
-    <a href="/adminonly" class="btn btn-outline-dark m-1">Admin Panel</a>
-    <a href="/admin/Orders" class="btn btn-outline-dark m-1">Manage Orders</a>
-    <a href="/admin/Products" class="btn btn-outline-dark m-1">Manage Products</a>
-    <a href="/admin/Recipes" class="btn btn-outline-dark m-1">Manage Recipes</a>
-    <a href="/admin/Users" class="btn btn-outline-dark m-1">Manage Users</a>
+
+  <!-- Admin Nav -->
+  <nav class="cart-container cart-container--wide admin-actionbar">
+    <a class="btn btn-accent"  href="/adminOnly">Admin Panel</a>
+    <a class="btn btn-primary" href="/admin/Orders">Manage Orders</a>
+    <a class="btn btn-primary" href="/admin/Products">Manage Products</a>
+    <a class="btn btn-primary" href="/admin/Recipes">Manage Recipes</a>
+    <a class="btn btn-primary" href="/admin/Users">Manage Users</a>
+  </nav>
+
+  <main class="cart-container cart-container--wide">
+  <h2 style="text-align:left; margin:0 0 16px;">Manage Active Users</h2>
+
+  <!-- 🔍 Search & Filter Bar -->
+  <div class="card" style="margin-bottom:12px; display:flex; flex-wrap:wrap; gap:12px; align-items:center;">
+    <input id="searchInput" class="input" type="text" placeholder="Search by name, email, or phone..." style="flex:1; min-width:240px;">
+    <select id="roleFilter" class="select" style="max-width:180px;">
+      <option value="">Filter by Roles</option>
+      <option value="admin">Admin</option>
+      <option value="manager">Manager</option>
+      <option value="baker">Baker</option>
+      <option value="customer">Customer</option>
+    </select>
   </div>
-  <body>
 
-<h2>Manage Active Users</h2>
-<table>
-  <thead>
-    <tr>
-      <th>User Name</th>
-      <th>Email</th>
-      <th>Phone number</th>
-      <th>Role</th>
-      <th>Update</th>
-      <th>Block</th>
-      <th>Delete</th>
-    </tr>
-  </thead>
+  <!-- Active Users -->
+  <section class="card">
+    <div class="table-responsive">
+      <table id="usersTable" class="cart-table cart-table--outlined admin-users-table">
+        <thead>
+          <tr>
+            <th>User Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Role</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% users.forEach(u => { const formId = `uform-${u.user_id}`; %>
+            <form id="<%= formId %>" action="/admin/Users/update/<%= u.user_id %>" method="POST" style="display:none;"></form>
 
-  
-  <tbody>
-  <% users.forEach(r => { %>
-    <tr>
-      <!-- UPDATE FORM -->
-      <form action="/admin/Users/update/<%= r.user_id %>" method="POST">
-        <td><input type="text" name="username" value="<%= r.user_name %>" required></td>
-        <td><input type="email" name="email" value="<%= r.email %>" required></td>
-        <td><input type="text" name="phone" value="<%= r.phone %>" required></td>
-        <td>
-          <select name="role" required>
-            <option value="admin" <%= r.role === 'admin' ? 'selected' : '' %>>Admin</option>
-            <option value="customer" <%= r.role === 'customer' ? 'selected' : '' %>>Customer</option>
-            <option value="baker" <%= r.role === 'baker' ? 'selected' : '' %>>Baker</option>
-            <option value="manager" <%= r.role === 'manager' ? 'selected' : '' %>>Manager</option>
-          </select>
-        </td>
-        <td><button type="submit" class="btn btn-update">Update</button></td>
-      </form>
+            <tr data-role="<%= u.role.toLowerCase() %>">
+              <td><input class="input" type="text" name="username" form="<%= formId %>" value="<%= u.user_name %>" required></td>
+              <td><input class="input" type="email" name="email" form="<%= formId %>" value="<%= u.email %>" required></td>
+              <td><input class="input" type="text" name="phone" form="<%= formId %>" value="<%= u.phone %>"></td>
+              <td>
+                <select class="select" name="role" form="<%= formId %>" required>
+                  <option value="admin" <%= u.role === 'admin' ? 'selected' : '' %>>Admin</option>
+                  <option value="manager" <%= u.role === 'manager' ? 'selected' : '' %>>Manager</option>
+                  <option value="baker" <%= u.role === 'baker' ? 'selected' : '' %>>Baker</option>
+                  <option value="customer" <%= u.role === 'customer' ? 'selected' : '' %>>Customer</option>
+                </select>
+              </td>
 
-      <!-- BLOCK FORM -->
-      <td>
-        <form action="/admin/Users/archive/<%= r.user_id %>" method="POST" style="display:inline;">
-          <button type="submit" class="btn btn-delete">Block</button>
-        </form>
-      </td>
-
-      <!-- DELETE LINK -->
-      <td>
-        <a href="/admin/Users/delete/<%= r.user_id %>" class="btn btn-delete">Delete</a>
-      </td>
-    </tr>
-  <% }) %>
-</tbody>
-</table>
-
-<h2>Manage Blocked Users</h2>
-
-<table>
-  <thead>
-    <tr>
-      <th>User Name</th>
-      <th>Email</th>
-      <th>Phone number</th>
-      <th>Role</th>
-      <th>Unblock</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% blockedUsers.forEach(r => { %>
-      <tr>
-        <td><%= r.user_name %></td>
-        <td><%= r.email %></td>
-        <td><%= r.phone %></td>
-        <td><%= r.role %></td>
-        <td>
-          <form action="/admin/Users/restore/<%= r.user_id %>" method="POST" style="display:inline;">
-            <button type="submit" class="btn btn-update">Unblock</button>
-          </form>
-        </td>
-      </tr>
-      <% }) %>
-</table>
+              <td>
+                <div class="cell-actions">
+                  <button type="submit" class="btn btn-primary btn-sm" form="<%= formId %>">Save</button>
+                  <form action="/admin/Users/archive/<%= u.user_id %>" method="POST" onsubmit="return confirm('Block this user?');">
+                    <button type="submit" class="btn btn-accent btn-sm">Block</button>
+                  </form>
+                </div>
+              </td>
 
 
- <a href="/adminOnly" class="btn btn-update">← Back </a>
-</body>
+            </tr>
+          <% }) %>
+          <tr id="usersNoResults" style="display:none;">
+            <td colspan="5" style="text-align:center; padding:20px;">
+              No users match your search.
+            </td>
+          </tr>
 
-<footer>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <h2 style="text-align:left; margin:18px 0 12px;">Manage Blocked Users</h2>
+
+  <section class="card">
+    <div class="table-responsive">
+      <table class="cart-table cart-table--outlined admin-users-table">
+        <thead>
+          <tr>
+            <th>User Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Role</th>
+            <th>Unblock</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% blockedUsers.forEach(u => { %>
+            <tr>
+              <td><%= u.user_name %></td>
+              <td><%= u.email %></td>
+              <td><%= u.phone %></td>
+              <td><%= u.role %></td>
+              <td>
+                <form action="/admin/Users/restore/<%= u.user_id %>" method="POST" onsubmit="return confirm('Unblock this user?');">
+                  <button type="submit" class="btn btn-primary btn-sm">Unblock</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div style="margin-top:8px;">
+    <a href="/adminOnly" class="btn btn-primary">← Back</a>
+  </div>
+</main>
+
+<script>
+  // 🔍 Search + Role Filter for Active Users
+  const searchInput = document.getElementById('searchInput');
+  const roleFilter  = document.getElementById('roleFilter');
+  const usersTable  = document.getElementById('usersTable');
+  const rows        = usersTable ? usersTable.querySelectorAll('tbody tr') : [];
+  const noResults   = document.getElementById('usersNoResults');
+
+  function rowText(row) {
+    const name  = row.querySelector('input[name="username"]')?.value || '';
+    const email = row.querySelector('input[name="email"]')?.value || '';
+    const phone = row.querySelector('input[name="phone"]')?.value || '';
+    return `${name} ${email} ${phone}`.toLowerCase();
+  }
+
+  function rowRole(row) {
+    // Use the current select value so filtering stays correct even after edits
+    return (row.querySelector('select[name="role"]')?.value || '').toLowerCase();
+  }
+
+  function applyFilters() {
+    const search = (searchInput.value || '').toLowerCase().trim();
+    const role   = (roleFilter.value || '').toLowerCase();
+
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+      if (row.id === 'usersNoResults') return;  // safety
+
+      const text = rowText(row);
+      const rRole = rowRole(row);
+
+      const matchSearch = !search || text.includes(search);
+      const matchRole   = !role   || rRole === role;
+
+      const show = matchSearch && matchRole;
+      row.style.display = show ? '' : 'none';
+      if (show) visibleCount++;
+    });
+
+    if (noResults) noResults.style.display = (visibleCount === 0) ? '' : 'none';
+  }
+
+  if (searchInput) searchInput.addEventListener('input', applyFilters);
+  if (roleFilter)  roleFilter.addEventListener('change', applyFilters);
+
+  // If any role in the table changes, re-apply filters (keeps role filter accurate)
+  document.querySelectorAll('#usersTable select[name="role"]').forEach(sel => {
+    sel.addEventListener('change', applyFilters);
+  });
+
+  // Initial run
+  applyFilters();
+</script>
+
+  <footer>
     <p>&copy; 2025 The Baker Barns Bakery</p>
   </footer>
 </body>

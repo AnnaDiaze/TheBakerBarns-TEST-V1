@@ -3,14 +3,6 @@ const router = express.Router();
 const conn = require('../dbConfig');
 const {isAdmin} = require("../middleware/auth");
 
-// Show all Users - OLD
-// router.get("/", isAdmin, (req, res) => {
-//     conn.query('SELECT * FROM users', (err, results) => {
-//         if (err) throw err;
-//         res.render('adminUsers', { users: results });
-//     });
-// });
-
 // show all active users-NEW
 router.get("/", isAdmin, (req, res) => {
   const queryActive = "SELECT * FROM users WHERE is_active = 1";

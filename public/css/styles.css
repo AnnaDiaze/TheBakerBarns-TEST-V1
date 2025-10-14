@@ -530,3 +530,22 @@ footer { background: var(--brand-pink); text-align: center; padding: 1rem; margi
   width: 10%;                /* Actions */
 }
 
+/* Actions layout inside Users table cell */
+.cell-actions{
+  display:flex;
+  gap:8px;
+  justify-content:center;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+.cell-actions form{
+  display:inline-flex;
+  margin:0;
+}
+
+.cell-actions a,
+.cell-actions button{
+  white-space:nowrap;
+}
+
