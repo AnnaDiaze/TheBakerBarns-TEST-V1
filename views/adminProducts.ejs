@@ -24,6 +24,8 @@
     .input, .select, .textarea {
       width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;
     }
+    .help { display:block; font-size:12px; color:#666; margin-top:4px; }
+    .file-input { display:block; width:100%; }
   </style>
 </head>
 <body>
@@ -47,7 +49,8 @@
     <!-- Add Product -->
     <section class="card">
       <h3 style="margin-top:0;">Add New Product</h3>
-      <form action="/admin/Products/add" method="POST" class="form-grid">
+      <!-- multipart for file upload -->
+      <form action="/admin/Products/add" method="POST" class="form-grid" enctype="multipart/form-data">
         <div>
           <label>Name</label>
           <input class="input" type="text" name="name" placeholder="Product Name" required />
@@ -72,6 +75,12 @@
           </select>
         </div>
 
+        <div>
+          <label>Product Image (optional)</label>
+          <input class="file-input" type="file" name="image_file" accept="image/*">
+          <small class="help">Saved to <code>/images/products</code> and path saved in DB (<code>image_url</code>).</small>
+        </div>
+
         <div style="grid-column:1/-1;">
           <label>Description</label>
           <textarea class="textarea" name="description" placeholder="Short description…"></textarea>
@@ -84,77 +93,91 @@
     </section>
 
     <!-- Active Products -->
-<section class="card">
-  <h3 style="margin-top:0;">Active Products</h3>
+    <section class="card">
+      <h3 style="margin-top:0;">Active Products</h3>
 
-  <div class="table-responsive">
-    <table class="cart-table cart-table--outlined admin-products-table">
-      <thead>
-        <tr>
-          <th style="min-width:160px;">Name</th>
-          <th>Description</th>
-          <th style="min-width:120px;">Price</th>
-          <th style="min-width:100px;">Stock</th>
-          <th style="min-width:160px;">Category</th>
-          <th style="min-width:180px;">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% products.forEach(product => { 
-             const formId = `form-${product.id}`;
-        %>
-          <!-- Hidden form that collects all inputs in this row -->
-          <form id="<%= formId %>" action="/admin/Products/update/<%= product.id %>" method="POST" style="display:none;"></form>
+      <div class="table-responsive">
+        <table class="cart-table cart-table--outlined admin-products-table">
+          <thead>
+            <tr>
+              <th style="min-width:160px;">Name</th>
+              <th>Description</th>
+              <th style="min-width:120px;">Price</th>
+              <th style="min-width:100px;">Stock</th>
+              <th style="min-width:160px;">Category</th>
+              <!-- <th style="min-width:180px;">Upload Image</th> -->
+              <th style="min-width:180px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% products.forEach(product => { 
+                 const formId = `form-${product.id}`;
+            %>
+              <!-- Hidden form that collects all inputs in this row -->
+              <form id="<%= formId %>" action="/admin/Products/update/<%= product.id %>" method="POST" enctype="multipart/form-data" style="display:none;"></form>
 
-          <tr>
-            <!-- NAME -->
-            <td style="text-align:left;">
-              <input class="input" type="text" name="name" form="<%= formId %>" value="<%= product.name %>" required>
-            </td>
+              <tr>
+                <!-- NAME -->
+                <td style="text-align:left;">
+                  <input class="input" type="text" name="name" form="<%= formId %>" value="<%= product.name %>" required>
+                </td>
 
-            <!-- DESCRIPTION -->
-            <td style="text-align:left; max-width:420px;">
-              <textarea class="textarea" name="description" form="<%= formId %>"><%= product.description %></textarea>
-            </td>
+                <!-- DESCRIPTION -->
+                <td style="text-align:left; max-width:420px;">
+                  <textarea class="textarea" name="description" form="<%= formId %>"><%= product.description %></textarea>
+                </td>
 
-            <!-- PRICE -->
-            <td>
-              <input class="input" type="number" name="price" form="<%= formId %>"
-                     value="<%= Number(product.price || 0).toFixed(2) %>" step="0.01" min="0" required>
-            </td>
+                <!-- PRICE -->
+                <td>
+                  <input class="input" type="number" name="price" form="<%= formId %>"
+                         value="<%= Number(product.price || 0).toFixed(2) %>" step="0.01" min="0" required>
+                </td>
 
-            <!-- STOCK -->
-            <td>
-              <input class="input" type="number" name="stock" form="<%= formId %>"
-                     value="<%= product.stock %>" min="0" required>
-            </td>
+                <!-- STOCK -->
+                <td>
+                  <input class="input" type="number" name="stock" form="<%= formId %>"
+                         value="<%= product.stock %>" min="0" required>
+                </td>
 
-            <!-- CATEGORY -->
-            <td>
-              <select class="select" name="category_id" form="<%= formId %>" required>
-                <% categories.forEach(cat => { %>
-                  <option value="<%= cat.id %>" <%= cat.id === product.category_id ? 'selected' : '' %>><%= cat.name %></option>
-                <% }) %>
-              </select>
-            </td>
+                <!-- CATEGORY -->
+                <td>
+                  <select class="select" name="category_id" form="<%= formId %>" required>
+                    <% categories.forEach(cat => { %>
+                      <option value="<%= cat.id %>" <%= cat.id === product.category_id ? 'selected' : '' %>><%= cat.name %></option>
+                    <% }) %>
+                  </select>
+                </td>
 
-            <!-- ACTIONS -->
-            <td>
-              <div class="table-actions">
-                <button type="submit" class="btn btn-primary btn-sm" form="<%= formId %>">Save</button>
+                <!-- UPLOAD IMAGE (optional) -->
+                <!-- <td>
+                  <label for="image_file_<%= product.id %>" class="help" style="margin-bottom:4px;">Select image (optional)</label>
+                  <input
+                    id="image_file_<%= product.id %>"
+                    class="file-input"
+                    type="file"
+                    name="image_file"
+                    accept="image/*"
+                    form="<%= formId %>"
+                  >
+                  <small class="help">If chosen, file is saved and <code>image_url</code> is updated.</small>
+                </td> -->
 
-                <form action="/admin/Products/archive/<%= product.id %>" method="POST" class="inline-form">
-                  <button type="submit" class="btn btn-accent btn-sm">Archive</button>
-                </form>
-              </div>
-            </td>
-          </tr>
-        <% }) %>
-      </tbody>
-    </table>
-  </div>
-</section>
+                <!-- ACTIONS -->
+                <td>
+                  <div class="table-actions">
+                    <button type="submit" class="btn btn-primary btn-sm" form="<%= formId %>">Save</button>
 
+                    <form action="/admin/Products/archive/<%= product.id %>" method="POST" class="inline-form">
+                      <button type="submit" class="btn btn-accent btn-sm">Archive</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
     <!-- Archived Products -->
     <section class="card">
