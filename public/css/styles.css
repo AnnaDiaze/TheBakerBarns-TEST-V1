@@ -402,6 +402,83 @@ footer { background: var(--brand-pink); text-align: center; padding: 1rem; margi
 .cart-total { text-align: right; font-size: 1.1rem; margin-top: 10px; }
 
 /* ===========================
+   Admin / Cart Table tweaks
+   =========================== */
+.cart-table th,
+.cart-table td {
+  padding: 16px 18px;         /* increased from 12px */
+  text-align: center;
+  border-bottom: 1px solid #eee;
+  line-height: 1.6;           /* more breathing space */
+}
+
+.cart-table tr {
+  transition: background 0.2s ease;
+}
+
+.cart-table tbody tr:hover {
+  background: #fff7f9;        /* subtle hover tint */
+}
+
+.cart-table th {
+  background: var(--table-head);
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: .3px;
+}
+
+.cart-table td {
+  font-size: 15px;
+}
+
+.cart-table--outlined th,
+.cart-table--outlined td {
+  border: 1px solid var(--table-border);
+}
+
+/* make tables more readable on wide screens */
+.table-responsive {
+  overflow-x: auto;
+  border-radius: 10px;
+  margin-top: 8px;
+}
+
+/* optional zebra striping */
+.cart-table tbody tr:nth-child(even) {
+  background: #fdfdfd;
+}
+
+/* Wider admin pages without touching customer cart */
+.cart-container--wide { max-width: 1200px; }  /* try 1280px if you want even wider */
+
+/* Roomier rows */
+.cart-table th,
+.cart-table td {
+  padding: 20px 22px;        /* was 12–16px */
+  line-height: 1.8;          /* taller rows */
+  vertical-align: middle;    /* center content vertically */
+  text-align: center;
+}
+
+/* Optional: give text columns breathing room + left align for readability */
+.cart-table td:nth-child(2),
+.cart-table td:nth-child(3),
+.cart-table td:nth-child(4) {   /* Customer, Email, Phone */
+  text-align: left;
+}
+
+/* Slightly larger body text */
+.cart-table tbody td { font-size: 16px; }
+
+/* Keep the header bold and clear */
+.cart-table thead th { font-size: 15px; letter-spacing: .3px; }
+
+/* Subtle zebra + hover (keeps borders) */
+.cart-table tbody tr:nth-child(even) { background: #fdfdfd; }
+.cart-table tbody tr:hover { background: #fff7f9; }
+
+
+/* ===========================
    Custom cake page
    =========================== */
 .custom-form { display: flex; flex-direction: column; gap: 12px; border: 1px solid #ddd; padding: 20px; border-radius: 8px; background-color: #f9f9f9; }

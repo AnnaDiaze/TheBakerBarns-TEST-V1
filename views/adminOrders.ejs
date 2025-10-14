@@ -1,66 +1,80 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <%- include('partials/header1.ejs') %>
-  <title>Admin - Orders</title>
+  <%- include('partials/header1.ejs') %>
+  <title>Admin – Orders</title>
 </head>
 <body>
-    <header>
+  <header>
     <h1>The Baker Barns Bakery</h1>
     <%- include('partials/navbar1.ejs') %>
   </header>
-  
-    <!-- Admin Action Bar -->
-  <div class="d-flex flex-wrap p-2 bg-light border-bottom">
-    <a href="/adminonly" class="btn btn-outline-dark m-1">Admin Panel</a>
-    <a href="/admin/Orders" class="btn btn-outline-dark m-1">Manage Orders</a>
-    <a href="/admin/Products" class="btn btn-outline-dark m-1">Manage Products</a>
-    <a href="/admin/Recipes" class="btn btn-outline-dark m-1">Manage Recipes</a>
-    <a href="/admin/Users" class="btn btn-outline-dark m-1">Manage Users</a>
-  </div>
-  
-  <h1>Manage Orders</h1>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Order ID</th>
-        <th>Customer</th>
-        <th>Email</th>
-        <th>Phone</th>
-        <th>Pickup Date</th>
-        <th>Total</th>
-        <th>Status</th>
-        <th>Update</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% orders.forEach(order => { %>
-        <tr>
-          <td><%= order.id %></td>
-          <td><%= order.customer_name %></td>
-          <td><%= order.email %></td>
-          <td><%= order.phone %></td>
-          <td><%= order.pickup_date.toISOString().split('T')[0] %></td>
-          <td>$<%= parseFloat(order.total_amount || 0).toFixed(2) %></td>
-          <td><%= order.status %></td>
-          <td>
-            <form action="/admin/orders/update/<%= order.id %>" method="POST" style="display:inline;">
-                <select name="status">
-                    <option value="pending" <%= order.status === 'pending' ? 'selected' : '' %>>Pending</option>
-                    <option value="paid" <%= order.status === 'paid' ? 'selected' : '' %>>Paid</option>
+  <!-- Admin nav -->
+  <nav class="cart-container" style="padding:12px 16px; margin-top:24px;">
+    <div style="display:flex; flex-wrap:wrap; gap:8px;">
+      <a class="btn btn-accent" href="/adminOnly">Admin Panel</a>
+      <a class="btn btn-primary" href="/admin/Orders">Manage Orders</a>
+      <a class="btn btn-primary" href="/admin/Products">Manage Products</a>
+      <a class="btn btn-primary" href="/admin/Recipes">Manage Recipes</a>
+      <a class="btn btn-primary" href="/admin/Users">Manage Users</a>
+    </div>
+  </nav>
+
+  <main class="cart-container cart-container--wide">
+    <h2 style="text-align:left; margin:0 0 16px;">Manage Orders</h2>
+
+    <div class="table-responsive">
+      <table class="cart-table cart-table--outlined">
+        <thead>
+          <tr>
+            <th>Order #</th>
+            <th>Customer</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Pickup Date</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th style="width:220px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% orders.forEach(order => { 
+               const d = (order.pickup_date instanceof Date) ? order.pickup_date : new Date(order.pickup_date);
+               const ymd = isNaN(d) ? '' : d.toISOString().split('T')[0];
+               const total = Number(order.total_amount || 0);
+          %>
+            <tr>
+              <td>#<%= order.id %></td>
+              <td><%= order.customer_name || '—' %></td>
+              <td><%= order.email || '—' %></td>
+              <td><%= order.phone || '—' %></td>
+              <td><%= ymd %></td>
+              <td>$<%= total.toFixed(2) %></td>
+              <td><%= order.status %></td>
+              <td>
+                <form action="/admin/orders/update/<%= order.id %>" method="POST" class="inline-form" style="margin-right:6px;">
+                  <select name="status" style="padding:6px; border-radius:6px; border:1px solid #ddd;">
+                    <option value="pending"   <%= order.status === 'pending'   ? 'selected' : '' %>>Pending</option>
+                    <option value="paid"      <%= order.status === 'paid'      ? 'selected' : '' %>>Paid</option>
                     <option value="completed" <%= order.status === 'completed' ? 'selected' : '' %>>Completed</option>
                     <option value="cancelled" <%= order.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
-                </select>
-                    <button type="submit" class="btn btn-update">Save</button>
-            </form>
-            <a href="/admin/orders/<%= order.id %>">View Details</a>
-            </td>
-        </tr>
-      <% }) %>
-    </tbody>
-  </table>
-  <a href="/adminOnly" class="btn btn-update">← Back </a>
+                  </select>
+                  <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                </form>
+
+                <a class="btn btn-accent btn-sm" href="/admin/orders/<%= order.id %>">View</a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:8px;">
+      <a href="/adminOnly" class="btn btn-primary">← Back</a>
+    </div>
+  </main>
 
   <footer>
     <p>&copy; 2025 The Baker Barns Bakery</p>
