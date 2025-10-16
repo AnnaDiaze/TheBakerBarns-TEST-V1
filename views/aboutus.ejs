@@ -1,70 +1,165 @@
 <html>
 <head>
-    <%- include('partials/header1.ejs') %>
-    <title>About Us - The Baker Barns</title>
+  <%- include('partials/header1.ejs') %>
+  <title>About Us - The Baker Barns</title>
+  <style>
+    /* Match home.ejs look & feel */
+    :root{--bb-accent:#ff4d6d;--bb-cream:#fff3f6;--bb-dark:#111}
+    body{margin:0}
+    header,footer,section{width:100%}
+    .bb-shell{padding:0 5vw}
+    .bb-section{padding:4rem 0}
+    h1,h2,h3{margin:0 0 .6rem}
+    p{margin:.25rem 0 1rem}
+
+    /* Grid & cards like home.ejs */
+    .grid{display:grid;gap:1rem}
+    .grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .grid.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    @media (max-width:900px){.grid.cols-3,.grid.cols-2{grid-template-columns:1fr}}
+    .card{border:1px solid #eee;border-radius:1rem;background:#fff;box-shadow:0 6px 18px rgba(0,0,0,.05);overflow:hidden}
+    .pad{padding:1rem}
+
+    /* About page extras */
+    .about-hero{background:linear-gradient(135deg,var(--bb-cream),#fff);border-bottom:1px solid #eee}
+    .about-image{width:100%;max-width:840px;border-radius:1rem;box-shadow:0 6px 18px rgba(0,0,0,.06)}
+    .why-item{background:#fff;border:1px solid #eee;border-radius:1rem;padding:1rem;display:flex;gap:.75rem;align-items:flex-start}
+    .why-ico{font-size:1.5rem}
+
+    /* Pretty contact section */
+    .contact-band{background:var(--bb-cream)}
+    .info-tile{transition:transform .2s ease, box-shadow .2s ease}
+    .info-tile:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.12)}
+    .map-wrap{border-radius:1rem;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.06);border:1px solid #eee}
+
+    /* Buttons (same feel as home) */
+    .btn{display:inline-block;padding:.8rem 1.2rem;border-radius:.6rem;border:1px solid var(--bb-accent);background:var(--bb-accent);color:#fff;text-decoration:none;font-weight:600}
+    .btn.outline{background:transparent;color:var(--bb-accent)}
+    .form-control{width:100%;padding:.75rem;border:1px solid #ddd;border-radius:.5rem}
+    .row{display:grid;gap:1rem;grid-template-columns:1fr 1fr}
+    @media (max-width:700px){.row{grid-template-columns:1fr}}
+    .alert{padding:.75rem 1rem;border-radius:.5rem}
+    .alert-success{background:#eaffef;border:1px solid #b3efc2;color:#126b2e}
+  </style>
 </head>
 <body>
   <header>
-    <h1>The Baker Barns Bakery</h1>
-    <%- include('partials/navbar1.ejs') %>
+    <div class="bb-shell">
+      <h1>The Baker Barns Bakery</h1>
+      <%- include('partials/navbar1.ejs') %>
+    </div>
   </header>
 
-  <!-- About Section -->
-  <div class="container about-section">
-    <div class="row align-items-start">
-      <div class="col-md-6">
-        <h2>About Us</h2>
-        <p>
-          At The Baker Barns, baking is more than just a craft—it’s a heartfelt tradition. 
-          Founded in 2010, we’ve been dedicated to bringing the freshest, most delicious breads, 
-          cakes, and pastries to our community. Every recipe is inspired by classic flavors and made 
-          with love, care, and the finest ingredients.
-        </p>
-        <p>
-          Our team of passionate bakers believes in quality over shortcuts, using time-honored techniques 
-          and locally sourced ingredients whenever possible. Whether you’re stopping by for your morning bread 
-          or ordering a custom cake for a special occasion, we’re here to make every bite memorable.
-        </p>
-        <p>
-          Join us in celebrating the joy of baking—one loaf, one slice, and one smile at a time.
-        </p>
+  <!-- Intro / About -->
+  <section class="bb-section about-hero">
+    <div class="bb-shell">
+      <div class="grid cols-2" style="align-items:center">
+        <div>
+          <h2 style="font-size:1.9rem">About Us</h2>
+          <p>
+            At The Baker Barns, baking is more than just a craft—it’s a heartfelt tradition.
+            Founded in 2010, we’ve been dedicated to bringing the freshest, most delicious breads,
+            cakes, and pastries to our community. Every recipe is inspired by classic flavors and made
+            with love, care, and the finest ingredients.
+          </p>
+          <p>
+            Our team of passionate bakers believes in quality over shortcuts, using time-honored techniques
+            and locally sourced ingredients whenever possible. Whether you’re stopping by for your morning bread
+            or ordering a custom cake for a special occasion, we’re here to make every bite memorable.
+          </p>
+          <p>Join us in celebrating the joy of baking—one loaf, one slice, and one smile at a time.</p>
+        </div>
+        <div style="text-align:center">
+          <img src="/images/About Us/image1.jpg" alt="Inside The Baker Barns Bakery" class="about-image" loading="lazy">
+        </div>
+      </div>
+    </div>
+  </section>
 
-        <!-- Contact Form -->
-        <div class="contact-form">
-          <h4>Contact me</h4>
-          <form action="/contact" method="POST">
-            <% if (success) { %> 
+  <!-- Contact Form -->
+  <section class="bb-section">
+    <div class="bb-shell">
+      <div class="card">
+        <div class="pad">
+          <h3 style="font-size:1.4rem;margin-bottom:.5rem">Contact Us</h3>
+          <form action="/contact" method="POST" novalidate>
+            <% if (success) { %>
               <div class="alert alert-success">Thank you! Your message has been sent.</div>
             <% } %>
-            <div class="row mb-3">
-              <div class="col">
-                <input type="text" name="first_name" class="form-control" placeholder="First name" required>
-              </div>
-              <div class="col">
-                <input type="text" name="last_name" class="form-control" placeholder="Last name" required>
-              </div>
+            <div class="row" style="margin-bottom:1rem">
+              <input type="text" name="first_name" class="form-control" placeholder="First name" required aria-label="First name">
+              <input type="text" name="last_name" class="form-control" placeholder="Last name" required aria-label="Last name">
             </div>
-            <div class="mb-3">
-              <input type="email" name="email" class="form-control" placeholder="Email address" required>
+            <div style="margin-bottom:1rem">
+              <input type="email" name="email" class="form-control" placeholder="Email address" required aria-label="Email">
             </div>
-            <div class="mb-3">
-              <textarea name="message" class="form-control" rows="4" placeholder="Enter your question or message" required></textarea>
+            <div style="margin-bottom:1rem">
+              <textarea name="message" class="form-control" rows="4" placeholder="Enter your question or message" required aria-label="Message"></textarea>
             </div>
-            <button type="submit" class="btn btn-accent">Submit</button>
+            <button type="submit" class="btn">Submit</button>
           </form>
         </div>
       </div>
+    </div>
+  </section>
 
-      <!-- Right Column (Image) -->
-      <div class="col-md-6 text-center">
-        <img src="/images/About Us/image1.jpg" alt="Bakery" class="about-image">
+  <!-- Location / Hours / Contact (pretty, like home) -->
+  <section class="bb-section contact-band">
+    <div class="bb-shell">
+      <h2 style="font-size:1.8rem">Visit or Contact Us</h2>
+      <div class="grid cols-3" style="margin-top:1rem">
+        <div class="card info-tile">
+          <div class="pad">
+            <div style="font-size:1.5rem">📍</div>
+            <div style="font-weight:600">Location</div>
+            <p style="margin:.35rem 0 0">
+              123 Sweet Street,<br> Mt Wellington, Auckland 1060,<br> New Zealand
+            </p>
+          </div>
+        </div>
+        <div class="card info-tile">
+          <div class="pad">
+            <div style="font-size:1.5rem">🕒</div>
+            <div style="font-weight:600">Opening Hours</div>
+            <p style="margin:.35rem 0 0">
+              Mon–Fri: 7:00 AM – 6:00 PM<br>
+              Sat: 8:00 AM – 5:00 PM<br>
+              Sun: Closed
+            </p>
+          </div>
+        </div>
+        <div class="card info-tile">
+          <div class="pad">
+            <div style="font-size:1.5rem">📞</div>
+            <div style="font-weight:600">Contact</div>
+            <p style="margin:.35rem 0 0">
+              Phone: <a href="tel:+6491234567">+64 9 123 4567</a><br>
+              Email: <a href="mailto:info@thebakerbarns.co.nz">info@thebakerbarns.co.nz</a>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Map row -->
+      <div style="margin-top:1.25rem">
+        <div class="map-wrap">
+          <!-- Replace address in the URL if needed -->
+          <iframe
+            title="The Baker Barns Location Map"
+            aria-label="Map showing the location of The Baker Barns Bakery"
+            src="https://www.google.com/maps?q=123%20Sweet%20Street%2C%20Mt%20Wellington%2C%20Auckland%201060&output=embed"
+            width="100%" height="380" style="border:0" loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade" allowfullscreen>
+          </iframe>
+        </div>
       </div>
     </div>
-  </div>
+  </section>
 
   <footer>
-    <p>&copy; 2025 The Baker Barns Bakery</p>
+    <div class="bb-shell" style="border-top:1px solid #eee;padding:1.25rem 0;color:#888">
+      © 2025 The Baker Barns Bakery
+    </div>
   </footer>
 </body>
 </html>
-
