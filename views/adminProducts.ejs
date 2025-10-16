@@ -104,7 +104,6 @@
               <th style="min-width:120px;">Price</th>
               <th style="min-width:100px;">Stock</th>
               <th style="min-width:160px;">Category</th>
-              <!-- <th style="min-width:180px;">Upload Image</th> -->
               <th style="min-width:180px;">Actions</th>
             </tr>
           </thead>
@@ -147,25 +146,10 @@
                   </select>
                 </td>
 
-                <!-- UPLOAD IMAGE (optional) -->
-                <!-- <td>
-                  <label for="image_file_<%= product.id %>" class="help" style="margin-bottom:4px;">Select image (optional)</label>
-                  <input
-                    id="image_file_<%= product.id %>"
-                    class="file-input"
-                    type="file"
-                    name="image_file"
-                    accept="image/*"
-                    form="<%= formId %>"
-                  >
-                  <small class="help">If chosen, file is saved and <code>image_url</code> is updated.</small>
-                </td> -->
-
                 <!-- ACTIONS -->
                 <td>
                   <div class="table-actions">
                     <button type="submit" class="btn btn-primary btn-sm" form="<%= formId %>">Save</button>
-
                     <form action="/admin/Products/archive/<%= product.id %>" method="POST" class="inline-form">
                       <button type="submit" class="btn btn-accent btn-sm">Archive</button>
                     </form>
