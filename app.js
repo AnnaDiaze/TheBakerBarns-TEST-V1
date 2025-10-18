@@ -120,6 +120,9 @@ app.use('/admin/Products', adminProductsRouter);
 const adminRecipesRoutes = require('./routes/adminRecipes');
 app.use('/admin/Recipes', adminRecipesRoutes);
 
+const adminMessagesRouter = require('./routes/adminMessages');
+app.use('/admin/Messages', adminMessagesRouter);
+
 const adminUsersRoutes = require('./routes/adminUsers');
 app.use('/admin/Users', adminUsersRoutes);
 
