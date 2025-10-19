@@ -4,28 +4,84 @@
   <%- include('partials/header1.ejs') %>
   <title>Admin Panel</title>
   <style>
-    /* Small, local styles just for this page */
-    .admin-actionbar { padding:12px 16px; margin-top:24px; display:flex; gap:8px; flex-wrap:wrap; }
-    .dash { max-width:1200px; margin: 16px auto 32px; padding: 0 10px; }
-    .welcome {
-      background:#ffe4e1; border:1px solid #f6c2cb; color:#8a3d3d;
-      border-radius:12px; padding:18px; text-align:center; box-shadow:0 4px 10px rgba(0,0,0,.05);
-      margin-bottom:16px;
-    }
-    .stat-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:16px; margin-bottom:16px; }
-    .stat { background:#fff; border:1px solid #eee; border-radius:12px; padding:16px; text-align:center; box-shadow:0 4px 10px rgba(0,0,0,.05); }
-    .stat h4 { margin:0 0 6px; font-size:14px; color:#777; }
-    .stat .num { font-size:28px; font-weight:800; color:#b35414; line-height:1; }
-    .stat small { display:block; margin-top:6px; color:#888; }
-    .tiles { display:grid; grid-template-columns: repeat(4, 1fr); gap:16px; }
-    .tile { background:#fff; border:1px solid #eee; border-radius:12px; padding:14px; box-shadow:0 4px 10px rgba(0,0,0,.05);}
-    .tile h5 { margin:0 0 8px; font-size:16px; color:#333; display:flex; align-items:center; gap:8px; }
-    .tile p { margin:0 0 12px; color:#666; font-size:14px; min-height:44px; }
-    .kpi { margin-top:22px; background:#fff; border:1px solid #eee; border-radius:12px; padding:14px; box-shadow:0 4px 10px rgba(0,0,0,.05); }
-    .kpi h3 { margin:0 0 8px; font-size:16px; }
-    @media (max-width: 1040px){ .tiles{ grid-template-columns: repeat(2, 1fr);} }
-    @media (max-width: 720px){ .stat-grid{ grid-template-columns: 1fr; } .tiles{ grid-template-columns: 1fr; } }
+  /* Global admin layout tweaks */
+  .admin-actionbar {
+    padding:12px 16px; margin-top:24px;
+    display:flex; gap:8px; flex-wrap:wrap;
+  }
+
+  .dash { max-width:1400px; margin: 16px auto 32px; padding: 0 10px; }
+
+  .welcome {
+    background:#ffe4e1; border:1px solid #f6c2cb; color:#8a3d3d;
+    border-radius:12px; padding:18px; text-align:center;
+    box-shadow:0 4px 10px rgba(0,0,0,.05); margin-bottom:16px;
+  }
+
+  /* ----- STAT GRID SECTION ----- */
+  .stat-grid {
+    display:flex;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:nowrap;     /* prevents breaking to next line */
+    overflow-x:auto;      /* scrolls horizontally if too many stats */
+    margin-bottom:16px;
+  }
+
+  .stat {
+    flex:1;
+    background:#fff;
+    border:1px solid #eee;
+    border-radius:12px;
+    padding:16px;
+    text-align:center;
+    box-shadow:0 4px 10px rgba(0,0,0,.05);
+    min-width:220px; /* ensures consistent width */
+  }
+
+  .stat h4 { margin:0 0 6px; font-size:14px; color:#777; }
+  .stat .num { font-size:28px; font-weight:800; color:#b35414; line-height:1; }
+  .stat small { display:block; margin-top:6px; color:#888; }
+
+  /* ----- TILE GRID SECTION ----- */
+  .tiles {
+    display:flex;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:nowrap;      /* keeps in one line */
+    overflow-x:auto;       /* allow scroll if narrow screen */
+    padding-bottom:8px;
+  }
+
+  .tile {
+    flex:1;
+    min-width:240px;
+    background:#fff;
+    border:1px solid #eee;
+    border-radius:12px;
+    padding:14px;
+    box-shadow:0 4px 10px rgba(0,0,0,.05);
+  }
+
+  .tile h5 { margin:0 0 8px; font-size:16px; color:#333; display:flex; align-items:center; gap:8px; }
+  .tile p { margin:0 0 12px; color:#666; font-size:14px; min-height:44px; }
+
+  .kpi {
+    margin-top:22px;
+    background:#fff;
+    border:1px solid #eee;
+    border-radius:12px;
+    padding:14px;
+    box-shadow:0 4px 10px rgba(0,0,0,.05);
+  }
+
+  .kpi h3 { margin:0 0 8px; font-size:16px; }
+
+  @media (max-width:900px) {
+    .stat-grid, .tiles { flex-wrap:wrap; }
+  }
   </style>
+
 </head>
 <body>
   <header>
@@ -64,6 +120,13 @@
         <div class="num"><%= productsActive %></div>
         <small>Archived: <%= productsArchived %> · Low stock: <%= productsLowStock %></small>
       </div>
+      
+      <div class="stat">
+        <h4>Messages</h4>
+        <div class="num"><%= messagesTotal %></div>
+        <small>New: <%= messagesNew %></small><br>
+        <!-- <a href="/admin/Messages" class="btn btn-primary btn-sm" style="margin-top:6px;">View Messages</a> -->
+      </div>
 
       <div class="stat">
         <h4>Users</h4>
@@ -71,6 +134,15 @@
         <small>Active: <%= usersActive %> · Blocked: <%= usersBlocked %></small>
       </div>
     </section>
+
+    <!-- Month KPI (no chart) -->
+    <section class="kpi">
+      <h3>This Month’s Sales (Completed)</h3>
+      <div style="font-weight:800; font-size:22px; color:#b35414;">
+        <%= monthName %> total: $<%= Number(monthSalesTotal || 0).toFixed(2) %>
+      </div>
+    </section>
+  
 
     <!-- Quick tiles -->
     <section class="tiles">
@@ -93,20 +165,19 @@
       </article>
 
       <article class="tile">
+        <h5>✉️ Manage Messages</h5>
+        <p>Manage contact messages.Read and Reply to the messages from customers.</p>
+        <a href="/admin/Messages" class="btn btn-primary btn-sm">Open Messages</a>
+      </article>
+
+      <article class="tile">
         <h5>👤 Manage Users</h5>
         <p>Update roles, block/unblock users, or remove accounts.</p>
         <a href="/admin/Users" class="btn btn-primary btn-sm">Open Users</a>
       </article>
     </section>
-
-    <!-- Month KPI (no chart) -->
-    <section class="kpi">
-      <h3>This Month’s Sales (Completed)</h3>
-      <div style="font-weight:800; font-size:22px; color:#b35414;">
-        <%= monthName %> total: $<%= Number(monthSalesTotal || 0).toFixed(2) %>
-      </div>
-    </section>
   </main>
+    
 
   <footer>
     <p>&copy; 2025 The Baker Barns Bakery</p>

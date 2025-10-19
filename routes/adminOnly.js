@@ -1,3 +1,4 @@
+// routes/adminOnly.js
 const express = require('express');
 const router = express.Router();
 const conn = require("../dbConfig");
@@ -23,7 +24,11 @@ router.get('/', isAdmin, async (req, res) => {
     const [[{ usersActive }]]  = await db.query('SELECT COUNT(*) AS usersActive FROM users WHERE is_active = 1');
     const [[{ usersBlocked }]] = await db.query('SELECT COUNT(*) AS usersBlocked FROM users WHERE is_active = 0');
 
-    // Month sales total (completed orders only) – display as a number (no chart)
+    // Messages (NEW)
+    const [[{ messagesNew }]]   = await db.query('SELECT COUNT(*) AS messagesNew FROM contact_messages WHERE status = "new"');
+    const [[{ messagesTotal }]] = await db.query('SELECT COUNT(*) AS messagesTotal FROM contact_messages');
+
+    // Month sales total (completed orders only)
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const startOfNext  = new Date(now.getFullYear(), now.getMonth() + 1, 1);
@@ -43,6 +48,8 @@ router.get('/', isAdmin, async (req, res) => {
       productsActive, productsArchived, productsLowStock,
       // Users
       usersTotal, usersActive, usersBlocked,
+      // Messages (NEW)
+      messagesNew, messagesTotal,
       // Month
       monthName,
       monthSalesTotal: Number(monthSalesTotal || 0)
